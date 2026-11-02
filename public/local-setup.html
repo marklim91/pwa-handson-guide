@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>파코 · 로컬 정적 모드 설정</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./dashboard.css" />
+    <style>
+      .setup { max-width: 720px; margin: 0 auto; display: grid; gap: 16px; }
+      .setup label { display: block; font-weight: 700; margin: 12px 0 4px; }
+      .setup input[type="url"], .setup input[type="password"], .setup select, .setup input[type="file"] { width: 100%; padding: 8px; box-sizing: border-box; }
+      .setup .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+      .setup .ok { color: #2ec98a; }
+    </style>
+    <script src="./local-api.js"></script>
+  </head>
+  <body>
+    <main class="dashboard setup">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">PACO / LOCAL STATIC MODE</p>
+          <h1>Node 없이 로컬에서 실행</h1>
+          <p class="intro">기존 <code>/api/*</code> 호출을 이 브라우저가 대신 처리합니다. 설정은 이 브라우저의 localStorage에만 저장되며 Git에 포함되지 않습니다.</p>
+        </div>
+      </header>
+
+      <section class="panel">
+        <h2>1. 데이터 소스</h2>
+        <label for="flow-url">Power Automate 조회 흐름 URL (선택)</label>
+        <input id="flow-url" type="password" autocomplete="off" spellcheck="false" placeholder="https://…api.powerplatform.com/… 또는 …logic.azure.com/…" />
+        <label for="content-type">요청 Content-Type</label>
+        <select id="content-type">
+          <option value="text">text/plain (사전 요청 없음 · 권장)</option>
+          <option value="json">application/json (흐름이 CORS 사전 요청을 처리할 때만)</option>
+        </select>
+        <p class="muted">브라우저가 응답을 읽으려면 흐름의 Response 동작 헤더에 <code>Access-Control-Allow-Origin</code>(예: 이 주소의 origin)이 필요합니다. 어렵다면 아래 JSON 가져오기를 사용하세요.</p>
+
+        <label for="rows-file">또는 JSON 파일 가져오기</label>
+        <input id="rows-file" type="file" accept=".json,application/json" />
+        <p class="muted">흐름의 “행 나열” 결과(<code>{ "value": [ … ] }</code> 또는 배열)를 저장한 파일입니다. URL이 비어 있을 때 사용됩니다.</p>
+        <p id="rows-status" class="muted"></p>
+      </section>
+
+      <section class="panel">
+        <h2>2. 로컬 모드</h2>
+        <label><input id="enabled" type="checkbox" /> 이 브라우저에서 /api 호출을 로컬로 처리</label>
+        <div class="row">
+          <button id="save" class="button" type="button">저장</button>
+          <button id="test" class="button subtle" type="button">연결 테스트</button>
+          <button id="clear" class="button subtle" type="button">설정·로컬 기록 모두 삭제</button>
+          <a class="button subtle" href="./login.html?reverify=1">로그인 화면으로</a>
+        </div>
+        <p id="message" role="status"></p>
+      </section>
+
+      <section class="panel">
+        <h2>한계</h2>
+        <ul>
+          <li>로그인은 조회 데이터의 학교·학번·이름과 일치하는 활성 학생인지만 확인합니다. 별도 로그인 흐름은 사용하지 않으며 브라우저 안의 확인이라 보안 경계가 아닙니다.</li>
+          <li>접속 현황·성장 이력은 이 브라우저에서만 집계됩니다.</li>
+        </ul>
+      </section>
+    </main>
+    <script src="./local-setup.js"></script>
+  </body>
+</html>

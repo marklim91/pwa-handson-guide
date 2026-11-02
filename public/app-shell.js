@@ -114,7 +114,15 @@
     var presence = document.createElement("script");
     presence.id = "pco-presence-script";
     presence.src = basePath + "presence.js";
-    document.head.appendChild(presence);
+    // 로컬 정적 모드에서는 presence.js가 호출하기 전에 /api 대체 스크립트가 fetch를 가로채야 합니다.
+    if (window.PcoLocalApi) {
+      document.head.appendChild(presence);
+      return;
+    }
+    var local = document.createElement("script");
+    local.src = basePath + "local-api.js";
+    local.onload = local.onerror = function () { document.head.appendChild(presence); };
+    document.head.appendChild(local);
   }
 
   if (document.body) {

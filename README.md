@@ -78,6 +78,22 @@ npm run preview:new  # 빌드 결과 확인: http://127.0.0.1:4173/new.html
 - 외부 Copilot iframe은 그대로 유지합니다. 해당 Agent의 채널·인증 정책에 따라 동작하며, Pages가 학생 본인을 확인하거나 자동 로그인 문맥을 전달하는 기능은 없습니다.
 - 공개 중단 시 Variable만 끄면 **앞으로의 배포만 중단**됩니다. 이미 배포한 사이트는 Settings → Pages에서 게시를 중단하고 공개 artifact도 확인하세요. 외부에 복사된 데이터까지 회수할 수는 없습니다.
 
+## Node 없이 정적 페이지로 실행 (로컬 정적 모드)
+
+Node.js 서버(`server.js`) 대신 `public/` 폴더를 **아무 정적 서버**로 서빙하면 됩니다. 기존 `/api/*` 호출(`login/verify`, `session`, `presence`, `dashboard`, `me/learning`)은 브라우저의 `fetch`를 가로채는 [`public/local-api.js`](./public/local-api.js)가 처리합니다. 서버 코드 없이 브라우저 JS만으로 동작하므로 이후 인터넷 정적 호스팅에도 그대로 쓸 수 있습니다.
+
+```powershell
+python -m http.server 8080 --bind 127.0.0.1 --directory public   # 또는 VS Code Live Server 등
+```
+
+1. `http://127.0.0.1:8080/local-setup.html`을 엽니다.
+2. 데이터 소스를 정합니다. **Power Automate 조회 흐름 URL** 입력(흐름의 Response에 `Access-Control-Allow-Origin` 헤더 필요) 또는 흐름 결과 **JSON 파일 가져오기**.
+3. “로컬로 처리”를 켜고 저장한 뒤 로그인 화면으로 이동합니다.
+
+- 설정·세션·성장 기록은 해당 브라우저의 `localStorage`에만 저장되며 Git에 포함되지 않습니다. 소스에 URL을 넣지 않습니다.
+- 로그인은 조회 데이터의 학교·학번·이름과 일치하는 활성 학생인지만 확인합니다(별도 로그인 흐름 미사용, 보안 경계 아님). 접속 현황·성장 이력은 그 브라우저 한 곳만 집계합니다.
+- 공개 인터넷에 올릴 때는 각 사용자가 URL을 직접 입력해야 하고 CORS 설정이 필요합니다. 서명 URL을 숨기려면 서버리스 API(예: Azure Functions)가 필요하며, 이 경우 로컬 모드를 끄면 기존 `/api/*` 호출이 그대로 실제 API를 향합니다.
+
 ## 로그인 (Node 서버 모드)
 
 - 첫 접속 시 학교·학번 쿠키가 없거나 유효하지 않으면 `login.html`로 이동합니다. 기존 쿠키가 있으면 메인 화면을 유지합니다.
