@@ -27,6 +27,11 @@
       match: ["", "index.html", "파코v3"],
     },
     {
+      label: "파코 스튜디오",
+      rel: "new.html",
+      match: ["new.html", "new", "스튜디오"],
+    },
+    {
       label: "내 학습",
       rel: "my-learning.html",
       match: ["my-learning.html", "my-learning", "내학습"],
