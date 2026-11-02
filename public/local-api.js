@@ -7,9 +7,9 @@
 
   // ▼ 여기에 목적지를 적으면 모든 브라우저에서 로컬 정적 모드가 자동으로 켜집니다.
   var DEFAULTS = {
-    flowUrl: "",   // 대시보드/내 학습 조회 흐름 (POST → { value: [...] })
-    loginUrl: "",  // 로그인 검증 흐름 (POST {school, studentId, studentName} → { verified: true|false }). 비워 두면 조회 데이터로 검증
-    contentType: "text", // "text"(text/plain, CORS 사전 요청 없음) 또는 "json"(application/json)
+    flowUrl: "https://9324e73acd4ee049b7ba177af6165e.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/00/workflows/851f75900f9a4337846b383582ca17e7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bPTH-lcpkubsaezJnG4wTIj4aFAp0XTkpKKruvskdA8",   // 대시보드·내 학습 조회 흐름 (POST → { value: [...] })
+    loginUrl: "https://9324e73acd4ee049b7ba177af6165e.9c.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/06/workflows/71a2933bb7e842f2b9652087997dcccd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rSa7q-NmXW3saTWfBqnP8gVfr221HFmhFRSpZ7U0DHc",  // 로그인 검증 흐름 (POST {school, studentId, studentName} → { verified: true|false }). 비우면 조회 데이터로 검증
+    contentType: "json", // 이 흐름들은 application/json 본문만 받습니다(text/plain은 400). "text"는 사전 요청 없는 text/plain
   };
 
   var script = document.currentScript;

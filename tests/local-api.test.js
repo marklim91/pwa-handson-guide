@@ -5,7 +5,9 @@ const test = require('node:test');
 const vm = require('node:vm');
 const { webcrypto } = require('node:crypto');
 
-const source = fs.readFileSync(path.join(__dirname, '..', 'public', 'local-api.js'), 'utf8');
+const rawSource = fs.readFileSync(path.join(__dirname, '..', 'public', 'local-api.js'), 'utf8');
+const defaultsBlock = /var DEFAULTS = \{[\s\S]*?\n  \};/;
+const source = rawSource.replace(defaultsBlock, 'var DEFAULTS = { flowUrl: "", loginUrl: "", contentType: "text" };');
 const flowUrl = 'https://example.environment.api.powerplatform.com/test?sig=private-local-value';
 const row = (changes = {}) => ({
   crbf2_studentlearningrecordid: '11111111-1111-4111-8111-111111111111',
@@ -19,9 +21,10 @@ const rows = [
   row({ crbf2_studentlearningrecordid: '33333333-3333-4333-8333-333333333333', crbf2_studentnumber: '00789', crbf2_studentname: '가상셋', crbf2_isactive: false }),
 ];
 
-function createEnvironment({ enabled = true, config, upstream, mode } = {}) {
+function createEnvironment({ enabled = true, config, upstream, mode, code = source } = {}) {
   const store = new Map();
   if (config || enabled) store.set('pco-local-config', JSON.stringify({ enabled, ...config }));
+  if (enabled === 'unset') store.clear();
   const calls = [];
   const window = {
     localStorage: {
@@ -38,7 +41,7 @@ function createEnvironment({ enabled = true, config, upstream, mode } = {}) {
     PcoLearningGuide: require('../learning-guide'),
     ...(mode ? { PcoDeployment: { mode } } : {}),
   };
-  vm.runInNewContext(source, {
+  vm.runInNewContext(code, {
     window, Response, URL, TextEncoder, AbortController, Uint8Array, console,
     setTimeout, clearTimeout,
     location: { href: 'http://127.0.0.1:8080/dashboard.html', origin: 'http://127.0.0.1:8080' },
@@ -161,6 +164,28 @@ test('login flow URL receives the student fields and its verified result decides
   assert.equal(invalid.body.verified, false);
   const blocked = createEnvironment({ config: { loginUrl }, upstream: async () => { throw new TypeError('Failed to fetch'); } });
   assert.equal((await blocked.call('login/verify', post(student))).body.code, 'FLOW_UNREACHABLE');
+});
+
+test('shipped DEFAULTS enable local mode without setup and call both flows with JSON bodies', async () => {
+  const defaults = /flowUrl: "([^"]+)"[\s\S]*?loginUrl: "([^"]+)"[\s\S]*?contentType: "(\w+)"/.exec(rawSource);
+  assert.ok(defaults, 'DEFAULTS must define flowUrl, loginUrl and contentType');
+  const [, dashboardUrl, loginUrl, contentType] = defaults;
+  assert.equal(contentType, 'json');
+  const urls = [];
+  const env = createEnvironment({
+    enabled: 'unset', code: rawSource,
+    upstream: async (url, init) => {
+      urls.push({ url: String(url), type: init.headers['Content-Type'] });
+      return String(url) === new URL(loginUrl).href ? Response.json({ verified: true }) : Response.json({ value: rows });
+    },
+  });
+  assert.equal(env.store.size, 0);
+  assert.equal((await env.call('dashboard')).status, 200);
+  assert.equal((await env.call('login/verify', post({ school: '가상학교', studentId: '00123', studentName: '가상하나' }))).status, 200);
+  assert.deepEqual(urls, [
+    { url: new URL(dashboardUrl).href, type: 'application/json' },
+    { url: new URL(loginUrl).href, type: 'application/json' },
+  ]);
 });
 
 test('missing source, blocked flow, bad rows and unsafe URLs fail explicitly', async () => {
