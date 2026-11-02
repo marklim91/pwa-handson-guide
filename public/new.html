@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f9">
+  <title>파코 스튜디오 · 나의 첫 Python</title>
+  <style>
+    :root{--background:#fff;--foreground:#20252d;--primary:#19705b;--primary-foreground:#fff;--muted:#f4f5f7;--muted-foreground:#7b818d;--border:#e7e9ee;--ring:#19705b;--radius:12px;font-family:Inter,"Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--foreground);font-size:14px;background:#f6f7f9}
+    *{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed}a{color:inherit}button,a,input,textarea,select{outline-offset:4px}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--ring)}button:disabled{opacity:.5}svg{width:18px;height:18px;flex-shrink:0;vertical-align:middle}h1,h2,h3,p{margin:0}button{color:inherit}pre,code,textarea.editor{font-family:"Cascadia Code","SFMono-Regular",Consolas,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere}code{font-size:.92em}button{transition:background .15s,box-shadow .15s}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;border:1px solid transparent;border-radius:7px;font-size:12px;font-weight:600;height:34px;padding:0 12px}.btn-primary{background:var(--primary);color:white}.btn-primary:hover{background:#145b4a}.btn-outline{background:#fff;border-color:var(--border)}.btn-outline:hover,.btn-ghost:hover{background:#f0f3f5}.btn-ghost{background:transparent}.btn-small{height:29px;font-size:11px;padding:0 9px}.btn-icon{width:32px;padding:0}.badge{display:inline-flex;align-items:center;gap:5px;border-radius:5px;font-size:10px;font-weight:600;padding:4px 7px;background:#edf6f1;color:#247358}.muted{color:var(--muted-foreground)}.tiny{font-size:11px}.row{display:flex;align-items:center;gap:9px}.spread{justify-content:space-between}.grow{flex:1;min-width:0}.divider{height:20px;width:1px;background:var(--border);margin:0 5px}
+    .shell{min-height:100vh;display:grid;grid-template-columns:74px minmax(0,1fr)}.rail{background:white;border-right:1px solid var(--border);display:flex;align-items:center;flex-direction:column;gap:20px;padding:23px 10px;position:sticky;top:0;height:100vh}.brand-icon{width:36px;height:36px;display:grid;place-items:center;background:var(--primary);color:white;border-radius:12px;font-size:22px;font-weight:800;box-shadow:0 4px 9px #19705b20}.rail-nav{display:flex;flex-direction:column;gap:12px;width:100%;margin-top:20px}.rail-button{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:transparent;padding:12px 0;border-radius:10px;color:#8b919d;font-size:10px;text-decoration:none}.rail-button.active{background:#eaf4ef;color:var(--primary);font-weight:700}.rail-bottom{margin-top:auto}.avatar{width:31px;height:31px;border-radius:50%;background:#e9e7fa;color:#7060a5;display:grid;place-items:center;font-size:11px;font-weight:700}.main{min-width:0}.topbar{height:70px;background:#ffffffc9;border-bottom:1px solid var(--border);padding:0 27px;display:flex;align-items:center;justify-content:space-between}.wordmark{font-size:19px;font-weight:850;letter-spacing:-1px}.wordmark span{font-size:11px;letter-spacing:1.6px;color:#969ca5;font-weight:500;margin-left:10px}.top-right{display:flex;align-items:center;gap:15px;font-size:11px;color:#7a818c}.local-dot{width:6px;height:6px;border-radius:50%;background:#4b9d7c;display:inline-block;margin-right:5px}
+    .workspace{padding:23px 25px 16px;max-width:1920px;margin:auto}.breadcrumb{display:flex;align-items:center;gap:8px;font-size:11px;color:#8a919b;margin-bottom:19px}.breadcrumb svg{width:13px;height:13px}.breadcrumb strong{color:#5d6570;font-weight:500}.heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:20px}.eyebrow{color:var(--primary);font-size:10px;letter-spacing:1.4px;font-weight:750;margin-bottom:7px}.heading h1{font-size:25px;letter-spacing:-1px;line-height:1.4}.heading p{color:#9298a2;font-size:12px;margin-top:8px}.heading-actions{display:flex;align-items:center;gap:10px;margin-top:9px}.progress-pill{display:flex;align-items:center;gap:10px;font-size:11px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#fff}.progress-track{width:65px;height:4px;background:#edf0f2;border-radius:5px;overflow:hidden}.progress-fill{background:var(--primary);height:100%;transition:width .3s}.lesson-bar{display:flex;align-items:center;gap:14px;margin-bottom:17px;border:1px solid var(--border);background:white;padding:11px 14px;border-radius:10px}.track-select{border:0;background:#f1f5f3;color:#366b58;border-radius:6px;padding:7px 10px;font-size:11px;font-weight:650;max-width:160px}.step-list{display:flex;align-items:center;gap:7px;flex:1;min-width:0}.step{display:flex;align-items:center;gap:7px;padding:6px 9px;background:none;border:0;border-radius:7px;color:#9096a0;font-size:11px;text-align:left}.step.current{color:#276a55;background:#eef6f1;font-weight:600}.step-number{width:23px;height:23px;border:1px solid #e4e7ec;border-radius:50%;display:grid;place-items:center;font-size:10px;background:white;flex-shrink:0}.current .step-number{background:var(--primary);color:white;border-color:var(--primary)}.step-number.done{color:var(--primary);background:#e6f4eb}.step-number svg{width:13px;height:13px}.step-link{height:1px;background:#e6e9ed;width:20px;flex-shrink:0}
+    .panels{display:grid;grid-template-columns:minmax(275px,.98fr) minmax(360px,1.3fr) minmax(285px,.92fr);gap:14px;align-items:stretch;min-height:670px;height:calc(100vh - 307px)}.panel{background:#fff;border:1px solid var(--border);border-radius:11px;min-width:0;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 2px 3px #1c273503}.panel-head{height:48px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--border);font-size:12px;font-weight:650;flex-shrink:0}.panel-head svg{width:15px;height:15px;color:#89929b}.panel-head .badge{margin-left:auto;font-size:9px}.tabs{display:flex;flex-direction:column;flex:1;min-height:0}.tab-list{display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--border);padding:0 18px;min-height:43px;flex-shrink:0}.tab-trigger{background:none;border:0;border-bottom:2px solid transparent;align-self:stretch;padding:0 0;font-size:11px;color:#9298a1}.tab-trigger[data-state=active]{border-bottom-color:var(--primary);color:var(--primary);font-weight:650}.tab-content{overflow:auto;flex:1;min-height:0;padding:24px 21px}.tab-content[data-state=inactive]{display:none}.problem-number{font-size:10px;color:#9da3ac;letter-spacing:1px;margin-bottom:9px}.problem-title{font-size:21px;letter-spacing:-.7px;line-height:1.4;margin-bottom:12px}.problem-meta{display:flex;gap:7px;align-items:center;margin-bottom:24px}.tag{padding:4px 7px;border-radius:4px;font-size:10px;color:#858b95;background:#f5f6f8}.section-title{font-size:12px;font-weight:700;margin:23px 0 11px}.prose{font-size:12px;line-height:1.95;color:#69717d;word-break:keep-all}.prose p+p{margin-top:9px}.concept-callout{display:flex;gap:9px;padding:12px;border:1px solid #e9e5fc;background:#f8f6ff;border-radius:8px;font-size:11px;color:#7b6ba3;margin-top:18px;line-height:1.8}.concept-callout svg{width:15px;height:15px;margin-top:3px}.io-card{border:1px solid var(--border);border-radius:8px;margin-top:10px;overflow:hidden}.io-head{background:#fafbfc;display:flex;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);font-size:10px;color:#8a919b}.io-body{display:grid;grid-template-columns:1fr 1fr}.io-col{padding:11px 12px;min-width:0}.io-col+.io-col{border-left:1px solid var(--border)}.io-col label{display:block;color:#9a9fa7;font-size:10px;margin-bottom:8px}.io-col pre{font-size:11px;line-height:1.6;margin:0;color:#58626c;min-height:17px}.constraint-list{padding-left:17px;color:#79818b;font-size:11px;line-height:1.9}.problem-footer{display:flex;justify-content:space-between;align-items:center;padding:11px 15px;border-top:1px solid var(--border);font-size:10px;color:#959ca5}.problem-footer .btn{font-size:10px}.concept-code{padding:15px;background:#f5f7f8;border:1px solid var(--border);border-radius:8px;font-size:12px;line-height:1.8}.hint{border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;font-size:12px;line-height:1.8}.hint summary{cursor:pointer;font-weight:600}.hint p{color:#7c8490;margin-top:10px}
+    .editor-toolbar{display:flex;align-items:center;justify-content:space-between;height:43px;padding:0 13px;border-bottom:1px solid var(--border);background:#fcfcfd;font-size:10px;color:#858d97}.language{display:flex;align-items:center;gap:6px;color:#4a5863}.python-logo{color:#4288ad;font-weight:bold;font-family:monospace;font-size:12px}.code-wrap{position:relative;display:flex;flex:1;min-height:210px;background:#fff;overflow:hidden}.line-numbers{margin:0;padding:21px 0 20px;width:43px;flex-shrink:0;text-align:right;font-size:12px;line-height:23px;color:#b8bec7;background:#fdfdfe;overflow:hidden;user-select:none;white-space:pre}.editor{resize:none;border:0;border-radius:0;padding:21px 18px 20px 14px;width:100%;height:100%;min-height:210px;line-height:23px;font-size:12px;color:#344d69;background:transparent;tab-size:4;white-space:pre;overflow:auto;outline:none!important;caret-color:#19705b}.editor:focus{box-shadow:inset 0 0 0 2px #19705b22}.editor-status{display:flex;justify-content:space-between;font-size:9px;color:#a1a7b0;border-top:1px solid #f1f2f5;padding:7px 13px}.runner{height:246px;border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}.runner .tab-list{min-height:39px;gap:20px}.runner .tab-content{padding:13px 15px}.input-label{font-size:10px;color:#969da7;margin-bottom:8px}.stdin{width:100%;resize:vertical;min-height:80px;max-height:140px;border:1px solid #e9ecf0;border-radius:6px;padding:10px;background:#fafbfc;font-family:Consolas,monospace;font-size:12px;color:#65707c}.input-note{font-size:10px;color:#a0a6af;margin-top:8px}.output{font-size:11px;line-height:1.8;margin:0;color:#53616c}.output.error{color:#b24d4d}.empty-result{height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#a4aab2;font-size:11px}.empty-result svg{width:25px;height:25px;color:#bec6ce}.result-head{font-size:12px;font-weight:650;margin-bottom:10px;display:flex;align-items:center;gap:7px}.result-pass{color:#19705b}.result-fail{color:#be5959}.case-row{padding:8px 0;border-bottom:1px solid #f0f1f3;font-size:10px;display:flex;align-items:center;gap:6px}.case-row details{width:100%;font-size:11px}.case-row summary{cursor:pointer}.case-detail{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px;color:#7e8791}.case-detail pre{background:#f8f9fb;padding:8px;margin:5px 0;font-size:10px}.execution-bar{display:flex;align-items:center;justify-content:space-between;gap:7px;border-top:1px solid var(--border);padding:12px 13px;background:#fdfefe}.execution-note{font-size:9px;color:#9aa3ae}.execution-buttons{display:flex;gap:7px}.execution-buttons svg{width:13px;height:13px}
+    .coach-label{background:#f0eefb;color:#8572bd}.coach-body{padding:20px 18px;display:flex;flex-direction:column;flex:1;min-height:0;overflow:auto}.coach-greeting{border:1px solid #eeebf7;background:linear-gradient(145deg,#faf9ff,#f7f9fc);border-radius:10px;padding:18px 15px;margin-bottom:18px}.coach-avatar{width:37px;height:37px;display:grid;place-items:center;background:#ebe6f8;color:#8e77bd;border-radius:12px;margin-bottom:15px}.coach-avatar svg{width:22px;height:22px}.coach-greeting h3{font-size:15px;letter-spacing:-.5px;margin-bottom:8px}.coach-greeting p{color:#92909f;line-height:1.9;font-size:11px}.coach-section-label{font-size:10px;color:#a0a4ad;letter-spacing:.3px;margin:2px 0 11px}.prompt-button{display:flex;gap:10px;align-items:center;text-align:left;border:1px solid var(--border);background:white;border-radius:8px;padding:12px 11px;width:100%;font-size:11px;color:#737b87;margin-bottom:8px}.prompt-button:hover{border-color:#b9d5c8;background:#fbfdfc}.prompt-button svg{width:14px;height:14px;color:#aaa5be}.prompt-button svg:last-child{margin-left:auto;width:12px}.coach-bottom{margin-top:auto;padding-top:20px}.coach-note{display:flex;gap:8px;background:#f7f8fa;border-radius:8px;padding:11px;color:#9a9fab;font-size:10px;line-height:1.8;margin-bottom:13px}.coach-note svg{width:13px;height:13px;margin-top:3px}.wide{width:100%}.coach-links{display:flex;justify-content:space-between;align-items:center;margin-top:8px}.coach-links .btn{font-size:10px;color:#9993ac}.coach-frame{width:100%;flex:1;min-height:380px;border:0;background:#fff}.coach-frame-tools{padding:9px 12px;border-bottom:1px solid var(--border);font-size:10px;color:#8d95a0;display:flex;align-items:center;gap:6px}.coach-frame-tools a{margin-left:auto}.workspace-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:10px;color:#a3a9b2}.workspace-footer span{display:flex;align-items:center;gap:5px}.workspace-footer svg{width:12px;height:12px}.alert{background:#fff5e8;border:1px solid #ecd7b5;color:#946d30;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:12px;line-height:1.7}.toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);z-index:100;background:#263f36;color:white;border:1px solid #486356;border-radius:9px;box-shadow:0 8px 30px #13291e20;padding:12px 19px;font-size:12px;max-width:90vw}
+    .dialog-overlay{position:fixed;inset:0;background:#152b2555;backdrop-filter:blur(4px);z-index:50}.dialog-content{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:51;width:min(760px,92vw);max-height:86vh;overflow:auto;background:white;border:1px solid var(--border);border-radius:17px;box-shadow:0 24px 90px #14271e33;padding:27px}.dialog-title{font-size:22px;letter-spacing:-.7px;margin:0}.dialog-description{font-size:12px;color:#9299a3;margin:10px 0 23px;line-height:1.8}.dialog-close{position:absolute;right:18px;top:18px}.track-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.track-card{border:1px solid var(--border);border-radius:10px;overflow:hidden}.track-card-header{padding:17px 14px;border-bottom:1px solid var(--border);background:#fafbfc}.track-card-header h3{font-size:14px;margin:8px 0}.track-card-header p{font-size:11px;color:#949aa4;line-height:1.7}.track-card-header .badge{background:#eaf0f9;color:#6d85b0}.roadmap-item{width:100%;background:#fff;border:0;border-bottom:1px solid #f1f2f5;padding:16px 13px;display:flex;gap:9px;text-align:left;align-items:center;font-size:11px;line-height:1.7}.roadmap-item:hover,.roadmap-item.selected{background:#f1f7f3}.roadmap-item small{display:block;font-size:9px;color:#a2a7af}.roadmap-item svg{width:16px;height:16px;color:#97a39c}.config-input{width:100%;padding:11px;border:1px solid var(--border);border-radius:7px;font-size:12px;margin:9px 0}.config-label{font-size:12px;font-weight:600}.config-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}.mobile-note{display:none}.loading{min-height:100vh;display:grid;place-items:center;text-align:center;padding:25px;color:#19705b}.loading p{margin:15px 0;font-size:13px;color:#84928c}.loading a{font-size:12px}
+    @media(min-width:1600px){.workspace{padding:27px 33px}.panels{gap:18px}.tab-content{padding:26px}.coach-body{padding:24px}.prose{font-size:13px}}
+    @media(max-width:1180px){.shell{grid-template-columns:58px 1fr}.rail{padding:20px 6px}.workspace{padding:20px 15px}.panels{grid-template-columns:minmax(240px,1fr) minmax(330px,1.3fr);height:auto}.coach-panel{grid-column:1/-1;min-height:390px}.coach-body{display:grid;grid-template-columns:1fr 1fr;column-gap:24px}.coach-greeting{grid-row:1/5;margin:0}.coach-bottom{grid-column:2;padding-top:8px}.coach-frame{height:550px;flex:none}.problem-panel,.editor-panel{height:690px}.step{padding:6px}.heading h1{font-size:22px}.execution-note{display:none}.track-grid{gap:8px}}
+    @media(max-width:720px){.shell{grid-template-columns:1fr}.rail{display:none}.topbar{padding:0 17px;height:58px}.top-right>span{display:none}.wordmark span{font-size:9px}.workspace{padding:18px 12px}.heading{flex-direction:column;gap:6px}.heading-actions{width:100%;justify-content:space-between}.heading h1{font-size:22px}.heading p{font-size:11px;line-height:1.8}.lesson-bar{flex-wrap:wrap;gap:8px;padding:10px}.lesson-bar>.btn{margin-left:auto}.step-list{order:3;flex-basis:100%}.step{flex:1;gap:5px;font-size:10px;padding:6px 2px}.step-link{width:8px}.panels{display:flex;flex-direction:column;gap:12px}.problem-panel{height:650px}.editor-panel{height:680px}.coach-panel{min-height:540px}.coach-body{display:flex}.coach-greeting{margin-bottom:18px}.coach-bottom{margin-top:15px}.track-grid{grid-template-columns:1fr}.workspace-footer{line-height:1.8;align-items:flex-start;gap:12px}.workspace-footer>span:last-child{display:none}.top-right{gap:8px}.mobile-note{display:block;font-size:10px;color:#939ba6;margin-bottom:11px}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="loading"><div><strong>파코 스튜디오를 준비하고 있어요.</strong><p id="boot-message">첫 방문에는 화면 구성 요소를 내려받습니다. 인터넷 연결을 확인해주세요.</p><a href="./new.html">화면 다시 불러오기</a></div></div>
+  </div>
+  <noscript>파코 스튜디오는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 허용해주세요.</noscript>
+  <script>
+    window.addEventListener('error', function (event) {
+      const message = document.getElementById('boot-message');
+      if (message) message.textContent = '화면을 불러오지 못했습니다. 인터넷 연결 또는 CDN 접근 설정을 확인한 후 새로고침해주세요.';
+    });
+    window.addEventListener('unhandledrejection', function () {
+      const message = document.getElementById('boot-message');
+      if (message) message.textContent = '화면 구성 요소를 불러오지 못했습니다. 인터넷 연결 또는 CDN 접근 설정을 확인해주세요.';
+    });
+  </script>
+  <!-- Static sample curriculum. Replace these records with the supplied curriculum. -->
+  <script id="curriculum" type="application/json">
+  [
+    {"id":"intro","name":"입문","label":"처음 만나는 파이썬","description":"코딩이 처음이어도 괜찮아요. 한 줄부터 시작해요.","topics":"출력 · 변수 · 입력","problems":[
+      {"id":"hello","title":"안녕, 파이썬!","topic":"출력","level":"입문","minutes":5,"description":["새로운 언어를 만났을 때는 가장 먼저 인사를 건네봐요.","화면에 Hello, Python! 을 출력하는 프로그램을 작성해주세요. 대문자, 쉼표, 띄어쓰기를 정확히 지켜주세요."],"input":"입력은 없습니다.","output":"Hello, Python! 을 한 줄로 출력합니다.","constraints":["print() 함수를 사용해보세요.","따옴표 안의 글자가 화면에 나타납니다."],"concept":"print()는 괄호 안에 있는 내용을 화면에 보여주는 함수예요. 글자는 작은따옴표나 큰따옴표로 감싸주세요.","conceptCode":"print(\"반가워요!\")\nprint(\"오늘부터 나도 개발자\")","starter":"# 나의 첫 번째 파이썬 코드!\n# 따옴표 안에 인사말을 넣어보세요.\n\nprint(\"\")\n","solution":"print(\"Hello, Python!\")\n","hints":["print()의 괄호 안에 큰따옴표를 넣어주세요.","따옴표 사이에 Hello, Python! 을 그대로 적어보세요."],"tests":[{"input":"","output":"Hello, Python!"}]},
+      {"id":"sum","title":"두 숫자의 합","topic":"변수와 입력","level":"입문","minutes":8,"description":["친구와 모은 구슬은 모두 몇 개일까요?","공백으로 구분된 두 정수 a, b를 입력받아 합을 출력해주세요."],"input":"한 줄에 두 정수 a, b가 주어집니다.","output":"a + b의 값을 출력합니다.","constraints":["-1,000 ≤ a, b ≤ 1,000","입력은 정수 두 개입니다."],"concept":"input()은 한 줄을 읽고, split()은 공백으로 나눠요. map(int, ...)를 사용하면 글자를 정수로 바꿀 수 있어요.","conceptCode":"a, b = map(int, input().split())\nprint(a)\nprint(b)","starter":"# 두 정수를 입력받아요.\na, b = map(int, input().split())\n\n# 두 수의 합을 출력해주세요.\n","solution":"a, b = map(int, input().split())\nprint(a + b)\n","hints":["덧셈에는 + 기호를 사용해요.","print(a + b)를 사용하면 두 변수의 합을 출력할 수 있어요."],"tests":[{"input":"3 5","output":"8"},{"input":"0 0","output":"0"},{"input":"-8 3","output":"-5"},{"input":"1000 1000","output":"2000"}]},
+      {"id":"even","title":"홀수일까, 짝수일까?","topic":"조건문","level":"입문","minutes":10,"description":["숫자에도 두 가지 팀이 있어요. 홀수 팀과 짝수 팀!","정수 n을 입력받아 짝수이면 EVEN, 홀수이면 ODD를 출력해주세요."],"input":"정수 n 하나가 주어집니다.","output":"EVEN 또는 ODD를 출력합니다.","constraints":["0 ≤ n ≤ 10,000","영어 대문자로 출력하세요."],"concept":"%는 나눈 나머지를 구해요. 2로 나눈 나머지가 0이면 짝수예요. if와 else로 조건에 따라 다른 코드를 실행해보세요.","conceptCode":"if 4 % 2 == 0:\n    print(\"짝수\")\nelse:\n    print(\"홀수\")","starter":"n = int(input())\n\n# n을 2로 나눈 나머지를 확인해보세요.\n","solution":"n = int(input())\nif n % 2 == 0:\n    print(\"EVEN\")\nelse:\n    print(\"ODD\")\n","hints":["n % 2 == 0 으로 짝수인지 확인해요.","if 뒤에는 콜론(:)을 쓰고, 실행할 줄은 들여쓰기해주세요."],"tests":[{"input":"4","output":"EVEN"},{"input":"7","output":"ODD"},{"input":"0","output":"EVEN"},{"input":"10000","output":"EVEN"}]}
+    ]},
+    {"id":"basic","name":"기초","label":"생각을 코드로 옮기기","description":"반복하고, 모으고, 비교하며 문제를 풀어요.","topics":"반복문 · 리스트 · 문자열","problems":[
+      {"id":"total","title":"1부터 N까지","topic":"반복문","level":"기초","minutes":10,"description":["1부터 차례로 숫자를 더하면 얼마가 될까요?","정수 n을 입력받아 1부터 n까지의 합을 출력해주세요."],"input":"정수 n이 주어집니다.","output":"1 + 2 + … + n을 출력합니다.","constraints":["1 ≤ n ≤ 10,000"],"concept":"for는 같은 작업을 반복해요. range(1, n + 1)은 1부터 n까지의 숫자를 차례로 만들어요.","conceptCode":"total = 0\nfor number in range(1, 4):\n    total += number\nprint(total)","starter":"n = int(input())\ntotal = 0\n\n# 1부터 n까지 더해주세요.\n\nprint(total)\n","solution":"n = int(input())\nprint(sum(range(1, n + 1)))\n","hints":["range(1, n + 1)을 반복해보세요.","반복문 안에서 total += number 로 값을 누적해요."],"tests":[{"input":"5","output":"15"},{"input":"1","output":"1"},{"input":"100","output":"5050"},{"input":"10000","output":"50005000"}]},
+      {"id":"maximum","title":"가장 큰 숫자 찾기","topic":"리스트","level":"기초","minutes":12,"description":["여러 개의 숫자 중 가장 큰 숫자를 찾아봐요.","첫 줄에 개수 n, 다음 줄에 n개의 정수가 주어집니다. 최댓값을 출력해주세요."],"input":"첫 줄에 n, 둘째 줄에 공백으로 구분된 n개의 정수가 주어집니다.","output":"가장 큰 정수를 출력합니다.","constraints":["1 ≤ n ≤ 100","각 정수는 -10,000 이상 10,000 이하입니다."],"concept":"리스트는 여러 값을 하나로 묶어요. list(map(int, input().split()))로 숫자 리스트를 만들 수 있어요.","conceptCode":"numbers = [3, 8, 2]\nprint(numbers[0])\nprint(max(numbers))","starter":"n = int(input())\nnumbers = list(map(int, input().split()))\n\n# numbers에서 가장 큰 값을 출력해주세요.\n","solution":"n = int(input())\nnumbers = list(map(int, input().split()))\nprint(max(numbers))\n","hints":["max() 함수로 리스트에서 최댓값을 구할 수 있어요.","직접 비교한다면 시작값을 0이 아니라 numbers[0]으로 두세요. 음수만 있을 수도 있어요."],"tests":[{"input":"5\n3 8 2 9 1","output":"9"},{"input":"3\n-9 -2 -5","output":"-2"},{"input":"1\n0","output":"0"},{"input":"4\n7 7 7 7","output":"7"}]},
+      {"id":"palindrome","title":"거꾸로 읽어도 똑같아","topic":"문자열","level":"기초","minutes":12,"description":["level처럼 거꾸로 읽어도 같은 단어를 회문이라고 해요.","주어진 단어가 회문이면 YES, 아니면 NO를 출력해주세요."],"input":"영어 소문자로 이루어진 단어 하나가 주어집니다.","output":"회문이면 YES, 아니면 NO를 출력합니다.","constraints":["단어 길이는 1 이상 100 이하입니다."],"concept":"문자열에 [::-1]을 붙이면 순서를 뒤집을 수 있어요. ==를 사용해 두 문자열이 같은지 비교해보세요.","conceptCode":"word = \"python\"\nprint(word[::-1])","starter":"word = input().strip()\n\n# 원래 단어와 뒤집은 단어를 비교해보세요.\n","solution":"word = input().strip()\nprint(\"YES\" if word == word[::-1] else \"NO\")\n","hints":["뒤집은 단어는 word[::-1]이에요.","word == word[::-1]이 참이면 YES를 출력해요."],"tests":[{"input":"level","output":"YES"},{"input":"python","output":"NO"},{"input":"a","output":"YES"},{"input":"abba","output":"YES"},{"input":"abca","output":"NO"}]}
+    ]},
+    {"id":"challenge","name":"도전","label":"문제 해결의 다음 레벨","description":"자료구조와 알고리즘으로 한 걸음 더 나아가요.","topics":"딕셔너리 · 스택 · 슬라이딩 윈도우","problems":[
+      {"id":"pair","title":"목표 합을 만드는 두 수","topic":"딕셔너리","level":"도전","minutes":20,"description":["숫자 목록에서 더했을 때 목표 값이 되는 두 수를 찾아요.","첫 줄에 n과 target, 둘째 줄에 n개의 정수가 주어집니다. 서로 다른 두 위치의 수를 더해 target을 만들 수 있으면 YES, 없으면 NO를 출력해주세요."],"input":"첫 줄에 n, target이 주어지고 둘째 줄에 숫자 목록이 주어집니다.","output":"가능하면 YES, 불가능하면 NO를 출력합니다.","constraints":["2 ≤ n ≤ 10,000","각 숫자와 target은 -100,000 이상 100,000 이하입니다.","같은 위치의 수를 두 번 사용할 수 없습니다."],"concept":"지금까지 본 숫자를 set에 저장해보세요. 현재 숫자가 x라면 target - x가 이미 있는지 빠르게 확인할 수 있어요.","conceptCode":"seen = set()\nseen.add(3)\nprint(3 in seen)","starter":"n, target = map(int, input().split())\nnumbers = list(map(int, input().split()))\n\n# 이미 본 숫자를 저장하면 더 빠르게 찾을 수 있어요.\n","solution":"n, target = map(int, input().split())\nnumbers = list(map(int, input().split()))\nseen = set()\nfound = False\nfor x in numbers:\n    if target - x in seen:\n        found = True\n        break\n    seen.add(x)\nprint(\"YES\" if found else \"NO\")\n","hints":["필요한 짝은 target - 현재 숫자예요.","현재 숫자를 저장하기 전에 짝이 있는지 먼저 확인해야 같은 위치를 두 번 사용하지 않아요."],"tests":[{"input":"4 9\n2 7 11 15","output":"YES"},{"input":"3 10\n1 2 3","output":"NO"},{"input":"2 6\n3 3","output":"YES"},{"input":"2 6\n3 8","output":"NO"},{"input":"3 0\n-4 4 5","output":"YES"}]},
+      {"id":"brackets","title":"괄호의 짝 맞추기","topic":"스택","level":"도전","minutes":20,"description":["열린 괄호와 닫힌 괄호가 올바르게 짝을 이루는지 확인해요.","(와 )만으로 이루어진 문자열이 올바르면 YES, 아니면 NO를 출력해주세요. 모든 여는 괄호는 나중에 나오는 닫는 괄호와 짝을 이루어야 해요."],"input":"괄호로 이루어진 문자열 한 줄이 주어집니다.","output":"올바른 괄호 문자열이면 YES, 아니면 NO를 출력합니다.","constraints":["문자열 길이는 1 이상 10,000 이하입니다."],"concept":"아직 닫히지 않은 괄호 수를 세어보세요. 도중에 음수가 되면 잘못된 순서이고, 마지막에 0이 되어야 올바른 짝이에요.","conceptCode":"balance = 0\nfor ch in \"(())\":\n    balance += 1 if ch == \"(\" else -1\nprint(balance)","starter":"text = input().strip()\n\n# 괄호의 균형을 확인해주세요.\n","solution":"text = input().strip()\nbalance = 0\nvalid = True\nfor ch in text:\n    balance += 1 if ch == \"(\" else -1\n    if balance < 0:\n        valid = False\n        break\nprint(\"YES\" if valid and balance == 0 else \"NO\")\n","hints":["여는 괄호는 +1, 닫는 괄호는 -1로 세어보세요.","개수가 같아도 )(는 올바르지 않아요. 중간에 음수가 되는지 확인하세요."],"tests":[{"input":"(())()","output":"YES"},{"input":")(","output":"NO"},{"input":"(()","output":"NO"},{"input":"()","output":"YES"},{"input":"())(","output":"NO"}]},
+      {"id":"unique","title":"겹치지 않는 가장 긴 구간","topic":"슬라이딩 윈도우","level":"도전","minutes":30,"description":["문자열에서 같은 글자가 반복되지 않는 가장 긴 연속 구간을 찾아요.","예를 들어 abcabcbb에서는 abc의 길이인 3을 출력합니다."],"input":"영어 소문자로 이루어진 문자열이 주어집니다.","output":"중복 문자가 없는 가장 긴 연속 구간의 길이를 출력합니다.","constraints":["문자열 길이는 1 이상 10,000 이하입니다.","부분 문자열은 원래 문자열에서 연속해야 합니다."],"concept":"구간의 왼쪽과 오른쪽을 움직이는 슬라이딩 윈도우를 사용해보세요. 각 글자가 마지막으로 등장한 위치를 딕셔너리에 저장하면 구간을 빠르게 옮길 수 있어요.","conceptCode":"last_seen = {}\nfor i, ch in enumerate(\"abc\"):\n    last_seen[ch] = i\nprint(last_seen)","starter":"text = input().strip()\n\n# 중복 없는 구간의 시작 위치를 관리해보세요.\n","solution":"text = input().strip()\nlast_seen = {}\nleft = 0\nbest = 0\nfor right, ch in enumerate(text):\n    if ch in last_seen:\n        left = max(left, last_seen[ch] + 1)\n    last_seen[ch] = right\n    best = max(best, right - left + 1)\nprint(best)\n","hints":["중복 글자를 만나면 왼쪽 경계를 그 글자의 이전 위치 다음으로 옮겨요.","왼쪽 경계는 뒤로 돌아가면 안 돼요. max(left, 이전 위치 + 1)을 사용해보세요."],"tests":[{"input":"abcabcbb","output":"3"},{"input":"bbbbb","output":"1"},{"input":"pwwkew","output":"3"},{"input":"abba","output":"2"},{"input":"abcdef","output":"6"}]}
+    ]}
+  ]
+  </script>
+  <script id="worker-source" type="text/plain">
+    import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs";
+    try {
+      const pyodide = await loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/",
+      });
+      pyodide.runPython(`
+import io, sys, json, traceback, contextlib
+
+class _LimitedOutput(io.StringIO):
+    def write(self, text):
+        if self.tell() + len(text) > 20000:
+            raise RuntimeError("출력이 너무 많아요. 출력은 20,000자까지 가능합니다.")
+        return super().write(text)
+
+def _execute_student(source, stdin):
+    output = _LimitedOutput()
+    errors = _LimitedOutput()
+    previous_stdin = sys.stdin
+    error = None
+    try:
+        sys.stdin = io.StringIO(stdin)
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(errors):
+            exec(compile(source, "solution.py", "exec"), {"__name__": "__main__"})
+    except BaseException:
+        error = traceback.format_exc(limit=5)[-4000:]
+    finally:
+        sys.stdin = previous_stdin
+    return json.dumps({"output": output.getvalue(), "stderr": errors.getvalue(), "error": error})
+      `);
+      self.onmessage = ({ data }) => {
+        try {
+          pyodide.globals.set("_student_source", data.code);
+          pyodide.globals.set("_student_stdin", data.input);
+          const result = JSON.parse(pyodide.runPython("_execute_student(_student_source, _student_stdin)"));
+          self.postMessage({ type: "result", ...result });
+        } catch (error) {
+          self.postMessage({ type: "fatal", error: error.message });
+        }
+      };
+      self.postMessage({ type: "ready" });
+    } catch (error) {
+      self.postMessage({ type: "fatal", error: "Python을 불러오지 못했어요. 인터넷 연결과 CDN 접근을 확인해주세요.\n" + error.message });
+    }
+  </script>
+  <script id="studio-core">
+    const TRACKS = JSON.parse(document.getElementById('curriculum').textContent);
+    const PROBLEMS = TRACKS.flatMap(track => track.problems.map(problem => ({ ...problem, trackId: track.id })));
+    const STORAGE_KEY = 'paco-studio-v1';
+    const DEFAULT_COACH_URL = 'https://copilotstudio.microsoft.com/environments/9324e73a-cd4e-e049-b7ba-177af6165e9c/bots/crbf2_agent_dKZZIw/webchat?__version__=2&enableFileAttachment=false&cliAgent=true';
+    function normalizeOutput(value) {
+      return value.replace(/\r\n/g, '\n').split('\n').map(line => line.trimEnd()).join('\n').replace(/\n+$/, '');
+    }
+    function validateCoachUrl(value) {
+      const url = new URL(value.trim());
+      if (url.protocol !== 'https:' || url.username || url.password) throw new Error('인증 정보가 없는 HTTPS 주소를 입력해주세요.');
+      return url.href;
+    }
+    function readStudioState(storage) {
+      const initial = { selected: 'hello', codes: {}, completed: [], coachUrl: DEFAULT_COACH_URL };
+      try {
+        const raw = storage.getItem(STORAGE_KEY);
+        if (!raw) return { state: initial, warning: '' };
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed) ||
+            typeof parsed.codes !== 'object' || !parsed.codes || Array.isArray(parsed.codes) ||
+            !Array.isArray(parsed.completed) || !PROBLEMS.some(p => p.id === parsed.selected) ||
+            typeof parsed.coachUrl !== 'string') throw new Error('저장 형식이 올바르지 않아요.');
+        const codes = {};
+        for (const [id, code] of Object.entries(parsed.codes)) {
+          if (!PROBLEMS.some(p => p.id === id) || typeof code !== 'string') throw new Error('저장된 코드 형식이 올바르지 않아요.');
+          codes[id] = code;
+        }
+        if (!parsed.completed.every(id => PROBLEMS.some(p => p.id === id))) throw new Error('저장된 진도가 올바르지 않아요.');
+        return { state: { selected: parsed.selected, codes, completed: [...new Set(parsed.completed)], coachUrl: validateCoachUrl(parsed.coachUrl) }, warning: '' };
+      } catch (error) {
+        return { state: initial, warning: '이전 학습 기록을 읽을 수 없어 임시 모드로 시작했어요. 기존 저장 데이터는 덮어쓰지 않습니다. ' + error.message };
+      }
+    }
+  </script>
+  <script type="module">
+    import React, { useEffect, useRef, useState } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import * as Tabs from '@radix-ui/react-tabs';
+    import * as Dialog from '@radix-ui/react-dialog';
+    import { cva } from 'class-variance-authority';
+    import { BookOpen, Code2, Bot, ChevronRight, ChevronLeft, ArrowUpRight, ArrowRight, Play, Send, RotateCcw, Check, CheckCircle2, Circle, Map, Lightbulb, Terminal, X, Settings2, ShieldCheck, Copy, Sparkles, ExternalLink, GraduationCap, ListChecks, LoaderCircle, Square, PanelLeft, Clock3, HelpCircle } from 'lucide-react';
+
+    const h = React.createElement;
+    // shadcn/ui's open-code Button, Tabs and Dialog composition, adapted to inline CSS without a build step.
+    const buttonVariants = cva('btn', {
+      variants: { variant: { default: 'btn-primary', outline: 'btn-outline', ghost: 'btn-ghost' }, size: { default: '', sm: 'btn-small', icon: 'btn-icon' } },
+      defaultVariants: { variant: 'default', size: 'default' }
+    });
+    const Button = React.forwardRef(({ className = '', variant, size, ...props }, ref) => h('button', { type: 'button', ref, className: buttonVariants({ variant, size, className }), ...props }));
+    const icon = (Icon, props = {}) => h(Icon, { size: 18, 'aria-hidden': true, ...props });
+    const tab = (value, label) => h(Tabs.Trigger, { className: 'tab-trigger', value, key: value }, label);
+    const content = (value, ...children) => h(Tabs.Content, { className: 'tab-content', value }, ...children);
+    const badge = (text, className = '') => h('span', { className: 'badge ' + className }, text);
+    function Modal({ open, onOpenChange, title, description, children }) {
+      return h(Dialog.Root, { open, onOpenChange }, h(Dialog.Portal, null,
+        h(Dialog.Overlay, { className: 'dialog-overlay' }),
+        h(Dialog.Content, { className: 'dialog-content' },
+          h(Dialog.Title, { className: 'dialog-title' }, title),
+          h(Dialog.Description, { className: 'dialog-description' }, description),
+          h(Dialog.Close, { asChild: true }, h(Button, { variant: 'ghost', size: 'icon', className: 'dialog-close', 'aria-label': '닫기' }, icon(X))),
+          children)));
+    }
+    class ErrorBoundary extends React.Component {
+      state = { error: null };
+      static getDerivedStateFromError(error) { return { error }; }
+      componentDidCatch(error) { console.error('[paco-studio]', error); }
+      render() {
+        if (this.state.error) return h('div', { className: 'loading', role: 'alert' }, h('div', null,
+          h('strong', null, '화면을 표시하지 못했어요.'), h('p', null, this.state.error.message),
+          h('a', { href: './new.html' }, '새로고침하기')));
+        return this.props.children;
+      }
+    }
+    function App() {
+      const [initial] = useState(() => {
+        try { return readStudioState(localStorage); }
+        catch (error) { return { state: { selected: 'hello', codes: {}, completed: [], coachUrl: DEFAULT_COACH_URL }, warning: '브라우저 저장소에 접근할 수 없어 임시 모드로 시작했어요. ' + error.message }; }
+      });
+      const [state, setState] = useState(initial.state);
+      const [storageWarning, setStorageWarning] = useState(initial.warning);
+      const storageDisabled = useRef(Boolean(initial.warning));
+      const [roadmap, setRoadmap] = useState(false);
+      const [settings, setSettings] = useState(false);
+      const [coachDraft, setCoachDraft] = useState(state.coachUrl);
+      const [configError, setConfigError] = useState('');
+      const [coachLoaded, setCoachLoaded] = useState(false);
+      const [problemTab, setProblemTab] = useState('problem');
+      const [runnerTab, setRunnerTab] = useState('input');
+      const [stdin, setStdin] = useState('');
+      const [runResult, setRunResult] = useState(null);
+      const [grade, setGrade] = useState(null);
+      const [busy, setBusy] = useState('');
+      const [toast, setToast] = useState('');
+      const [scrollTop, setScrollTop] = useState(0);
+      const [elapsed, setElapsed] = useState(null);
+      const job = useRef(null);
+      const editorRef = useRef(null);
+      const problem = PROBLEMS.find(p => p.id === state.selected);
+      const track = TRACKS.find(t => t.id === problem.trackId);
+      const trackIndex = track.problems.findIndex(p => p.id === problem.id);
+      const problemIndex = PROBLEMS.findIndex(p => p.id === problem.id);
+      const code = state.codes[problem.id] ?? problem.starter;
+      const solved = state.completed.includes(problem.id);
+      const trackCompleted = track.problems.filter(p => state.completed.includes(p.id)).length;
+
+      useEffect(() => {
+        if (storageDisabled.current) return;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        catch (error) {
+          storageDisabled.current = true;
+          setStorageWarning('브라우저에 저장하지 못했어요. 현재 작업은 유지되지만 새로고침하면 사라질 수 있어요. ' + error.message);
+        }
+      }, [state]);
+      useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(''), 3500);
+        return () => clearTimeout(timer);
+      }, [toast]);
+      useEffect(() => () => {
+        if (job.current) { job.current.worker.terminate(); clearTimeout(job.current.timer); }
+      }, []);
+      useEffect(() => { setStdin(problem.tests[0].input); }, [problem.id]);
+
+      function stopJob(message) {
+        if (job.current) {
+          job.current.worker.terminate();
+          clearTimeout(job.current.timer);
+          job.current = null;
+        }
+        setBusy('');
+        if (message) {
+          setRunResult({ output: '', error: message });
+          setGrade(null);
+          setRunnerTab('output');
+        }
+      }
+      function selectProblem(id) {
+        if (id === problem.id) { setRoadmap(false); return; }
+        stopJob();
+        setState(previous => ({ ...previous, selected: id }));
+        setRunResult(null); setGrade(null); setElapsed(null);
+        setProblemTab('problem'); setRunnerTab('input'); setRoadmap(false); setScrollTop(0);
+        if (editorRef.current) editorRef.current.scrollTop = 0;
+      }
+      function changeCode(value) {
+        setState(previous => ({ ...previous, codes: { ...previous.codes, [problem.id]: value } }));
+      }
+      function execute(mode) {
+        if (job.current) return;
+        setBusy('Python 준비 중…'); setGrade(null); setRunResult(null); setElapsed(null);
+        setRunnerTab(mode === 'grade' ? 'tests' : 'output');
+        const cases = mode === 'grade' ? problem.tests : [{ input: stdin }];
+        const results = [];
+        let current = 0;
+        let started;
+        let worker;
+        let workerUrl;
+        try {
+          workerUrl = URL.createObjectURL(new Blob([document.getElementById('worker-source').textContent], { type: 'text/javascript' }));
+          worker = new Worker(workerUrl, { type: 'module' });
+        } catch (error) {
+          setBusy(''); setRunResult({ output: '', error: 'Python 실행기를 만들지 못했어요: ' + error.message }); setRunnerTab('output');
+          return;
+        } finally { if (workerUrl) URL.revokeObjectURL(workerUrl); }
+        const active = { worker, timer: null };
+        job.current = active;
+        function armTimeout(ms, message) {
+          clearTimeout(active.timer);
+          active.timer = setTimeout(() => stopJob(message), ms);
+        }
+        function sendCase() {
+          setBusy(mode === 'grade' ? `채점 중 ${current + 1}/${cases.length}` : '실행 중…');
+          armTimeout(5000, '실행 제한 시간(5초)을 초과했어요. 무한 반복이 있는지 확인해주세요.');
+          worker.postMessage({ code, input: cases[current].input });
+        }
+        armTimeout(90000, 'Python을 90초 안에 불러오지 못했어요. 인터넷 연결을 확인한 후 다시 시도해주세요.');
+        worker.onerror = event => {
+          event.preventDefault();
+          if (job.current !== active) return;
+          stopJob('Python 실행기 오류: ' + (event.message || '실행기를 불러올 수 없습니다. CDN 접근을 확인해주세요.'));
+        };
+        worker.onmessage = ({ data }) => {
+          if (job.current !== active) return;
+          if (data.type === 'fatal') { stopJob(data.error); return; }
+          if (data.type === 'ready') { started = performance.now(); sendCase(); return; }
+          if (data.type !== 'result') return;
+          const result = { ...data, input: cases[current].input, expected: cases[current].output };
+          result.passed = !result.error && normalizeOutput(result.output) === normalizeOutput(result.expected ?? '');
+          results.push(result);
+          current += 1;
+          if (mode === 'grade') setGrade({ results: [...results], total: cases.length, finished: false });
+          if (current < cases.length) { sendCase(); return; }
+          setElapsed(Math.round(performance.now() - started));
+          stopJob();
+          if (mode === 'run') setRunResult(result);
+          else {
+            const passed = results.every(item => item.passed);
+            setGrade({ results, total: cases.length, finished: true, passed });
+            if (passed) {
+              setState(previous => ({ ...previous, completed: [...new Set([...previous.completed, problem.id])] }));
+              setToast('해결 완료! 한 걸음 더 성장했어요.');
+            }
+          }
+        };
+      }
+      async function copyPrompt(kind) {
+        const question = kind === 'concept' ? '이 문제에 필요한 개념을 쉬운 예시로 설명해주세요.' :
+          kind === 'hint' ? '정답 코드를 바로 알려주지 말고, 다음 단계의 힌트만 주세요.' :
+          '제 코드에서 개선할 점을 찾아주세요. 제가 스스로 고칠 수 있도록 질문해주세요.';
+        const text = `[${problem.title}]\n${problem.description.join('\n')}\n입력: ${problem.input}\n출력: ${problem.output}\n\n${question}\n\n현재 코드:\n\`\`\`python\n${code}\`\`\``;
+        try {
+          await navigator.clipboard.writeText(text);
+          setToast('질문과 코드를 복사했어요. 코치 채팅에 붙여넣어주세요.');
+        } catch (error) { setToast('복사하지 못했어요. 브라우저의 클립보드 권한을 확인해주세요.'); }
+      }
+      function saveCoach() {
+        try {
+          const url = validateCoachUrl(coachDraft);
+          setState(previous => ({ ...previous, coachUrl: url }));
+          setCoachLoaded(false); setSettings(false); setConfigError('');
+          setToast('코치 주소를 변경했어요. 연결 버튼으로 열어주세요.');
+        } catch (error) { setConfigError(error.message); }
+      }
+      function openSettings() { setCoachDraft(state.coachUrl); setConfigError(''); setSettings(true); }
+      function resetCode() {
+        if (confirm('현재 코드를 지우고 이 문제의 시작 코드로 되돌릴까요? 해결 기록은 유지됩니다.')) {
+          changeCode(problem.starter); setToast('시작 코드로 되돌렸어요.');
+        }
+      }
+      function onEditorKey(event) {
+        if (event.key === 'Tab') {
+          event.preventDefault();
+          const node = event.currentTarget;
+          const start = node.selectionStart, end = node.selectionEnd;
+          changeCode(code.slice(0, start) + '    ' + code.slice(end));
+          requestAnimationFrame(() => { node.selectionStart = node.selectionEnd = start + 4; });
+        } else if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+          event.preventDefault(); execute(event.shiftKey ? 'grade' : 'run');
+        }
+      }
+      const promptButton = (Icon, text, kind) => h('button', { className: 'prompt-button', onClick: () => copyPrompt(kind) }, icon(Icon), text, icon(ArrowUpRight));
+
+      return h('div', { className: 'shell' },
+        h('aside', { className: 'rail', 'aria-label': '주요 메뉴' },
+          h('div', { className: 'brand-icon', title: '파코 스튜디오' }, 'p'),
+          h('nav', { className: 'rail-nav' },
+            h('button', { className: 'rail-button active', onClick: () => { setRoadmap(false); editorRef.current?.focus(); }, 'aria-label': '코딩 학습' }, icon(Code2), '학습하기'),
+            h('button', { className: 'rail-button', onClick: () => setRoadmap(true) }, icon(Map), '로드맵'),
+            h('button', { className: 'rail-button', onClick: () => setRoadmap(true) }, icon(GraduationCap), '나의 진도')),
+          h('div', { className: 'rail-bottom' }, h(Button, { size: 'icon', variant: 'ghost', onClick: openSettings, 'aria-label': '코치 설정' }, icon(Settings2)))),
+        h('main', { className: 'main' },
+          h('header', { className: 'topbar' },
+            h('div', { className: 'wordmark' }, '파코', h('span', null, 'CODE STUDIO')),
+            h('div', { className: 'top-right' },
+              h('span', null, h('i', { className: 'local-dot' }), '나만의 속도로, 한 걸음씩'),
+              h(Button, { variant: 'ghost', size: 'sm', onClick: () => setRoadmap(true) }, icon(BookOpen), '학습 둘러보기'),
+              h('span', { className: 'divider' }),
+              h('div', { className: 'avatar', title: '로그인 없는 로컬 학습자' }, '나'))),
+          h('div', { className: 'workspace' },
+            h('div', { className: 'breadcrumb' }, icon(BookOpen), '학습 공간', icon(ChevronRight), track.name, icon(ChevronRight), h('strong', null, track.label)),
+            h('div', { className: 'heading' },
+              h('div', null, h('div', { className: 'eyebrow' }, 'YOUR CODING JOURNEY'), h('h1', null, track.label), h('p', null, track.description)),
+              h('div', { className: 'heading-actions' },
+                h('div', { className: 'progress-pill' }, icon(CheckCircle2, { size: 14, color: '#19705b' }), h('span', null, '트랙 진도 ', h('b', null, `${trackCompleted} / ${track.problems.length}`)),
+                  h('div', { className: 'progress-track', role: 'progressbar', 'aria-label': '현재 트랙 진도', 'aria-valuenow': trackCompleted, 'aria-valuemin': 0, 'aria-valuemax': track.problems.length }, h('div', { className: 'progress-fill', style: { width: `${trackCompleted / track.problems.length * 100}%` } }))),
+                h(Button, { variant: 'outline', onClick: () => setRoadmap(true) }, icon(PanelLeft), '문제 목록'))),
+            storageWarning && h('div', { className: 'alert', role: 'alert' }, storageWarning),
+            h('section', { className: 'lesson-bar', 'aria-label': '트랙 및 문제 선택' },
+              h('select', { className: 'track-select', value: track.id, 'aria-label': '학습 트랙', onChange: event => selectProblem(TRACKS.find(t => t.id === event.target.value).problems[0].id) },
+                TRACKS.map(t => h('option', { key: t.id, value: t.id }, `${t.name} · ${t.label}`))),
+              h('div', { className: 'step-list' }, track.problems.map((p, index) => h(React.Fragment, { key: p.id },
+                index > 0 && h('span', { className: 'step-link' }),
+                h('button', { className: 'step' + (p.id === problem.id ? ' current' : ''), onClick: () => selectProblem(p.id), 'aria-current': p.id === problem.id ? 'step' : undefined },
+                  h('span', { className: 'step-number' + (state.completed.includes(p.id) ? ' done' : '') }, state.completed.includes(p.id) ? icon(Check) : String(index + 1).padStart(2, '0')), p.topic)))),
+              h(Button, { variant: 'ghost', size: 'sm', onClick: () => setRoadmap(true) }, '전체 보기', icon(ChevronRight))),
+            h('p', { className: 'mobile-note' }, '작은 화면에서는 문제 → 코드 → 코치 순서로 학습할 수 있어요.'),
+            h('div', { className: 'panels' },
+              h('section', { className: 'panel problem-panel', 'aria-label': '문제 설명' },
+                h('div', { className: 'panel-head' }, icon(BookOpen), '문제', badge('SAMPLE')),
+                h(Tabs.Root, { className: 'tabs', value: problemTab, onValueChange: setProblemTab },
+                  h(Tabs.List, { className: 'tab-list', 'aria-label': '문제 정보' }, tab('problem', '문제 설명'), tab('concept', '개념 배우기'), tab('hints', '힌트 & 해설')),
+                  content('problem',
+                    h('div', { className: 'problem-number' }, `PROBLEM ${String(problemIndex + 1).padStart(2, '0')}`),
+                    h('h2', { className: 'problem-title' }, problem.title),
+                    h('div', { className: 'problem-meta' }, badge(problem.level), h('span', { className: 'tag' }, problem.topic), h('span', { className: 'tiny muted' }, `약 ${problem.minutes}분`), solved && badge('해결 완료')),
+                    h('div', { className: 'prose' }, problem.description.map((text, i) => h('p', { key: i }, text))),
+                    h('div', { className: 'concept-callout' }, icon(Lightbulb), h('span', null, problem.id === 'hello' ? '처음이라도 괜찮아요! 오른쪽에 코드를 적고 실행 버튼을 눌러보세요.' : `${problem.topic} 개념이 낯설다면 위의 ‘개념 배우기’ 탭부터 살펴보세요.`)),
+                    h('h3', { className: 'section-title' }, '입력'), h('p', { className: 'prose' }, problem.input),
+                    h('h3', { className: 'section-title' }, '출력'), h('p', { className: 'prose' }, problem.output),
+                    h('h3', { className: 'section-title' }, '입출력 예시'),
+                    problem.tests.slice(0, 2).map((test, i) => h('div', { className: 'io-card', key: i },
+                      h('div', { className: 'io-head' }, `예제 ${i + 1}`, icon(Code2, { size: 12 })),
+                      h('div', { className: 'io-body' }, h('div', { className: 'io-col' }, h('label', null, '입력'), h('pre', null, test.input || '(없음)')),
+                        h('div', { className: 'io-col' }, h('label', null, '출력'), h('pre', null, test.output))))),
+                    h('h3', { className: 'section-title' }, '기억해주세요'), h('ul', { className: 'constraint-list' }, problem.constraints.map((text, i) => h('li', { key: i }, text)))),
+                  content('concept', h('div', { className: 'eyebrow' }, 'LEARN THE BASICS'), h('h2', { className: 'problem-title' }, problem.topic),
+                    h('p', { className: 'prose' }, problem.concept), h('pre', { className: 'concept-code' }, problem.conceptCode),
+                    h('div', { className: 'concept-callout' }, icon(Lightbulb), '예제 코드를 직접 바꿔 실행해보면 더 쉽게 이해할 수 있어요.')),
+                  content('hints', h('h2', { className: 'problem-title' }, '조금씩, 스스로 풀어봐요'),
+                    h('p', { className: 'prose', style: { marginBottom: 20 } }, '힌트를 하나씩 열어보세요. 해설을 보기 전에 직접 시도하는 것을 추천해요.'),
+                    problem.hints.map((text, i) => h('details', { className: 'hint', key: problem.id + i }, h('summary', null, `힌트 ${i + 1}`), h('p', null, text))),
+                    h('details', { className: 'hint', key: problem.id + '-solution' }, h('summary', null, '예시 정답 확인하기'), h('p', null, '정답을 읽는 것만으로 해결 처리되지는 않아요. 직접 실행하고 제출해보세요.'), h('pre', { className: 'concept-code' }, problem.solution)))),
+                h('div', { className: 'problem-footer' }, h('span', null, `${trackIndex + 1} / ${track.problems.length} 문제`),
+                  h('div', { className: 'row' },
+                    h(Button, { variant: 'ghost', size: 'sm', disabled: problemIndex === 0, onClick: () => selectProblem(PROBLEMS[problemIndex - 1].id), 'aria-label': '이전 문제' }, icon(ChevronLeft)),
+                    h(Button, { variant: 'ghost', size: 'sm', disabled: problemIndex === PROBLEMS.length - 1, onClick: () => selectProblem(PROBLEMS[problemIndex + 1].id) }, '다음 문제', icon(ChevronRight))))),
+              h('section', { className: 'panel editor-panel', 'aria-label': 'Python 코드 작성 및 실행' },
+                h('div', { className: 'panel-head' }, icon(Code2), '코드 에디터', h('span', { className: 'grow' }), h('span', { className: 'tiny muted', style: { fontWeight: 400 } }, storageWarning ? '임시 저장 모드' : '브라우저 자동 저장')),
+                h('div', { className: 'editor-toolbar' }, h('div', { className: 'language' }, h('span', { className: 'python-logo' }, 'Py'), 'Python 3', h('span', { className: 'muted' }, '· solution.py')),
+                  h(Button, { size: 'icon', variant: 'ghost', onClick: resetCode, disabled: Boolean(busy), title: '시작 코드로 되돌리기', 'aria-label': '코드 초기화' }, icon(RotateCcw, { size: 13 }))),
+                h('div', { className: 'code-wrap' },
+                  h('pre', { className: 'line-numbers', 'aria-hidden': true }, h('div', { style: { transform: `translateY(-${scrollTop}px)` } }, code.split('\n').map((_, i) => i + 1).join('\n'))),
+                  h('textarea', { ref: editorRef, className: 'editor', 'aria-label': 'Python 코드', value: code, spellCheck: false, autoCapitalize: 'off', autoComplete: 'off', readOnly: Boolean(busy),
+                    onChange: event => changeCode(event.target.value), onKeyDown: onEditorKey, onScroll: event => setScrollTop(event.currentTarget.scrollTop) })),
+                h('div', { className: 'editor-status' }, h('span', null, 'UTF-8', '　·　', '들여쓰기 4칸'), h('span', null, 'Python · WebAssembly')),
+                h(Tabs.Root, { className: 'runner', value: runnerTab, onValueChange: setRunnerTab },
+                  h(Tabs.List, { className: 'tab-list', 'aria-label': '실행 정보' }, tab('input', '테스트 입력'), tab('output', '실행 결과'), tab('tests', '채점 결과')),
+                  content('input', h('div', { className: 'input-label' }, '직접 입력해보세요'),
+                    h('textarea', { className: 'stdin', 'aria-label': '테스트 입력', placeholder: '이 문제는 입력이 필요하지 않아요.', value: stdin, onChange: event => setStdin(event.target.value) }),
+                    h('p', { className: 'input-note' }, '실행은 이 입력을, 제출은 문제의 모든 테스트 케이스를 사용해요.')),
+                  content('output', runResult ? h(React.Fragment, null,
+                    h('div', { className: 'result-head ' + (runResult.error ? 'result-fail' : 'result-pass') }, icon(runResult.error ? X : CheckCircle2, { size: 14 }), runResult.error ? '실행 중 오류가 발생했어요' : '실행 완료', elapsed !== null && h('span', { className: 'muted tiny' }, `${elapsed} ms`)),
+                    h('pre', { className: 'output' }, runResult.output || (!runResult.error ? '(출력 없음)' : '')),
+                    runResult.stderr && h('pre', { className: 'output error' }, runResult.stderr),
+                    runResult.error && h('pre', { className: 'output error' }, runResult.error)) :
+                    h('div', { className: 'empty-result' }, icon(busy ? LoaderCircle : Terminal), busy || '코드를 실행하면 여기에 결과가 나타나요.')),
+                  content('tests', grade ? h(React.Fragment, null,
+                    h('div', { className: 'result-head ' + (grade.passed ? 'result-pass' : grade.finished ? 'result-fail' : 'muted'), role: 'status' },
+                      icon(grade.passed ? CheckCircle2 : ListChecks, { size: 15 }), grade.finished ? grade.passed ? '모든 테스트를 통과했어요!' : '조금만 더 생각해볼까요?' : '채점하고 있어요…',
+                      h('span', { className: 'tiny muted' }, `${grade.results.filter(r => r.passed).length} / ${grade.total}`)),
+                    grade.results.map((result, i) => h('div', { className: 'case-row', key: i }, h('details', null,
+                      h('summary', { className: result.passed ? 'result-pass' : 'result-fail' }, `${result.passed ? '✓' : '×'} 테스트 ${i + 1} · ${result.passed ? '통과' : result.error ? '실행 오류' : '출력이 달라요'}`),
+                      h('div', { className: 'case-detail' }, h('div', null, '기대 출력', h('pre', null, result.expected)), h('div', null, '내 출력', h('pre', null, result.output || '(없음)'))),
+                      result.error && h('pre', { className: 'output error' }, result.error))))) :
+                    h('div', { className: 'empty-result' }, icon(busy ? LoaderCircle : ListChecks), busy || '제출하면 테스트 케이스별 결과를 볼 수 있어요.'))),
+                h('div', { className: 'execution-bar' }, h('span', { className: 'execution-note', role: 'status' }, busy || 'Ctrl + Enter로 실행'),
+                  h('div', { className: 'execution-buttons' }, busy ?
+                    h(Button, { variant: 'outline', onClick: () => stopJob('실행을 중지했어요. 코드를 수정하고 다시 시도해보세요.') }, icon(Square), '중지') :
+                    h(React.Fragment, null, h(Button, { variant: 'outline', onClick: () => execute('run') }, icon(Play), '실행'),
+                      h(Button, { onClick: () => execute('grade') }, icon(Send), '제출하기'))))),
+              h('section', { className: 'panel coach-panel', 'aria-label': '코딩 코치' },
+                h('div', { className: 'panel-head' }, icon(Sparkles), '파코 코치', badge('AI PARTNER', 'coach-label')),
+                coachLoaded ? h(React.Fragment, null,
+                  h('div', { className: 'coach-frame-tools' },
+                    h(Button, { variant: 'ghost', size: 'sm', onClick: () => copyPrompt('hint') }, icon(Copy, { size: 12 }), '문제·코드 복사'),
+                    h('a', { href: state.coachUrl, target: '_blank', rel: 'noopener noreferrer', title: '연결이 안 되면 새 창에서 열기' }, icon(ExternalLink, { size: 13 }))),
+                  h('iframe', { className: 'coach-frame', title: '파코 코딩 코치 대화', src: state.coachUrl, referrerPolicy: 'no-referrer', sandbox: 'allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox' }),
+                  h('div', { className: 'coach-frame-tools' }, '연결·로그인은 외부 서비스에서 제공해요.',
+                    h(Button, { variant: 'ghost', size: 'sm', onClick: () => setCoachLoaded(false) }, '도움말'))) :
+                  h('div', { className: 'coach-body' },
+                    h('div', { className: 'coach-greeting' }, h('div', { className: 'coach-avatar' }, icon(Bot)),
+                      h('h3', null, '막히는 순간, 함께 생각해요.'), h('p', null, '정답보다 중요한 건 생각하는 과정이에요.', h('br'), '파코와 대화하며 나만의 답을 찾아보세요.')),
+                    h('div', { className: 'coach-section-label' }, '이렇게 질문해보세요'),
+                    promptButton(Lightbulb, '이 문제에 필요한 개념이 궁금해', 'concept'),
+                    promptButton(HelpCircle, '정답 말고, 작은 힌트만 줄래?', 'hint'),
+                    promptButton(Code2, '내 코드를 함께 살펴봐줄래?', 'review'),
+                    h('div', { className: 'coach-bottom' },
+                      h('div', { className: 'coach-note' }, icon(ShieldCheck), h('span', null, '질문 버튼은 문제와 코드를 복사해요. 외부 코치에 자동 전송하지 않으니, 직접 붙여넣어주세요. 이름 등 개인정보는 입력하지 마세요.')),
+                      h(Button, { className: 'wide', onClick: () => setCoachLoaded(true) }, icon(Bot), '코치 연결하기', icon(ArrowRight)),
+                      h('div', { className: 'coach-links' }, h('span', { className: 'tiny muted' }, '외부 iframe · 인터넷 필요'), h(Button, { variant: 'ghost', size: 'sm', onClick: openSettings }, icon(Settings2, { size: 12 }), '연결 설정')))))),
+            h('footer', { className: 'workspace-footer' },
+              h('span', null, icon(ShieldCheck), storageWarning ? '임시 모드 · 학습 기록 저장 불가' : '코드와 진도는 이 브라우저에만 저장돼요.'),
+              h('span', null, '샘플 커리큘럼 · ', `${PROBLEMS.length}개 문제`, '　·　작은 시도가 큰 변화를 만들어요.')))),
+        h(Modal, { open: roadmap, onOpenChange: setRoadmap, title: '나만의 코딩 여정', description: `입문부터 도전까지, 원하는 문제를 자유롭게 선택하세요. 전체 ${PROBLEMS.length}개 중 ${state.completed.length}개 해결 · 제공 전 샘플 문제입니다.` },
+          h('div', { className: 'track-grid' }, TRACKS.map(t => h('section', { className: 'track-card', key: t.id },
+            h('div', { className: 'track-card-header' }, badge(t.name), h('h3', null, t.label), h('p', null, t.topics)),
+            t.problems.map(p => h('button', { className: 'roadmap-item' + (p.id === problem.id ? ' selected' : ''), key: p.id, onClick: () => selectProblem(p.id) },
+              icon(state.completed.includes(p.id) ? CheckCircle2 : Circle), h('div', { className: 'grow' }, p.title, h('small', null, state.completed.includes(p.id) ? '해결 완료' : state.codes[p.id] !== undefined || p.id === state.selected ? '진행 중' : '시작 전')), icon(ChevronRight))))))),
+        h(Modal, { open: settings, onOpenChange: setSettings, title: '코치 연결 설정', description: '기존 파코의 공개 코치 주소를 기본으로 사용해요. 다른 코치를 사용하려면 iframe 삽입이 허용된 HTTPS 주소를 입력해주세요.' },
+          h('label', { className: 'config-label', htmlFor: 'coach-url' }, '코치 iframe 주소'),
+          h('input', { id: 'coach-url', className: 'config-input', type: 'url', value: coachDraft, onChange: event => setCoachDraft(event.target.value) }),
+          configError && h('div', { className: 'alert', role: 'alert' }, configError),
+          h('p', { className: 'prose' }, '페이지는 AI API를 호출하지 않습니다. 대화는 외부 코치 서비스에서 처리하며, 해당 서비스의 로그인·사용 정책이 적용됩니다. 코치 화면이 차단되면 새 창으로 열어주세요.'),
+          h('div', { className: 'config-actions' }, h(Button, { variant: 'outline', onClick: () => setCoachDraft(DEFAULT_COACH_URL) }, '기본 주소'), h(Button, { onClick: saveCoach }, '주소 저장'))),
+        toast && h('div', { className: 'toast', role: 'status' }, toast));
+    }
+    createRoot(document.getElementById('root')).render(h(ErrorBoundary, null, h(App)));
+  </script>
+</body>
+</html>
