@@ -29,6 +29,10 @@
         <h2>1. 데이터 소스</h2>
         <label for="flow-url">Power Automate 조회 흐름 URL (선택)</label>
         <input id="flow-url" type="password" autocomplete="off" spellcheck="false" placeholder="https://…api.powerplatform.com/… 또는 …logic.azure.com/…" />
+        <label for="login-url">로그인 검증 흐름 URL (선택)</label>
+        <input id="login-url" type="password" autocomplete="off" spellcheck="false" placeholder="비우면 조회 데이터의 학교·학번·이름으로 로그인 확인" />
+        <p class="muted">POST로 <code>{ school, studentId, studentName }</code>을 보내고 <code>{ "verified": true|false }</code>를 받습니다. 요청 형식이 text/plain이면 흐름에서 <code>json(triggerBody())</code>로 본문을 읽어야 합니다.</p>
+
         <label for="content-type">요청 Content-Type</label>
         <select id="content-type">
           <option value="text">text/plain (사전 요청 없음 · 권장)</option>
@@ -57,7 +61,7 @@
       <section class="panel">
         <h2>한계</h2>
         <ul>
-          <li>로그인은 조회 데이터의 학교·학번·이름과 일치하는 활성 학생인지만 확인합니다. 별도 로그인 흐름은 사용하지 않으며 브라우저 안의 확인이라 보안 경계가 아닙니다.</li>
+          <li>로그인 흐름 URL을 지정하면 그 흐름의 <code>verified</code> 결과를, 비워 두면 조회 데이터의 학교·학번·이름 일치 여부를 확인합니다. 어느 쪽이든 브라우저 안의 확인이라 보안 경계가 아닙니다.</li>
           <li>접속 현황·성장 이력은 이 브라우저에서만 집계됩니다.</li>
         </ul>
       </section>

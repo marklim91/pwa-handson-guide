@@ -132,6 +132,37 @@ test('flow mode posts a CORS-simple request and validates the response without l
   assert.doesNotMatch(JSON.stringify(body), /private-local-value/);
 });
 
+test('login flow URL receives the student fields and its verified result decides the session', async () => {
+  const loginUrl = 'https://example.environment.api.powerplatform.com/login?sig=private-login-value';
+  const seen = [];
+  const env = createEnvironment({
+    config: { flowUrl, loginUrl },
+    upstream: async (url, init) => {
+      seen.push({ url: String(url), init });
+      if (String(url) === loginUrl) return Response.json({ verified: JSON.parse(init.body).studentId === '00123' });
+      return Response.json({ value: rows });
+    },
+  });
+  const student = { school: '가상학교', studentId: '00123', studentName: '가상하나' };
+  assert.deepEqual((await env.call('login/verify', post(student))).body, { verified: true });
+  const login = seen.find(call => call.url === loginUrl);
+  assert.equal(login.init.method, 'POST');
+  assert.deepEqual(JSON.parse(login.init.body), student);
+  assert.equal(login.init.headers['Content-Type'], 'text/plain');
+  assert.equal((await env.call('session')).body.authenticated, true);
+  assert.equal(seen.filter(call => call.url === flowUrl).length, 0);
+  const rejected = await env.call('login/verify', post({ ...student, studentId: '00456' }));
+  assert.equal(rejected.status, 401);
+  assert.equal(rejected.body.verified, false);
+
+  const broken = createEnvironment({ config: { loginUrl }, upstream: async () => Response.json({ ok: 1 }) });
+  const invalid = await broken.call('login/verify', post(student));
+  assert.equal(invalid.status, 502);
+  assert.equal(invalid.body.verified, false);
+  const blocked = createEnvironment({ config: { loginUrl }, upstream: async () => { throw new TypeError('Failed to fetch'); } });
+  assert.equal((await blocked.call('login/verify', post(student))).body.code, 'FLOW_UNREACHABLE');
+});
+
 test('missing source, blocked flow, bad rows and unsafe URLs fail explicitly', async () => {
   const empty = createEnvironment();
   const missing = await empty.call('dashboard');

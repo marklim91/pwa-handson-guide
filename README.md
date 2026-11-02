@@ -90,9 +90,9 @@ python -m http.server 8080 --bind 127.0.0.1 --directory public   # 또는 VS Cod
 2. 데이터 소스를 정합니다. **Power Automate 조회 흐름 URL** 입력(흐름의 Response에 `Access-Control-Allow-Origin` 헤더 필요) 또는 흐름 결과 **JSON 파일 가져오기**.
 3. “로컬로 처리”를 켜고 저장한 뒤 로그인 화면으로 이동합니다.
 
-- 설정·세션·성장 기록은 해당 브라우저의 `localStorage`에만 저장되며 Git에 포함되지 않습니다. 소스에 URL을 넣지 않습니다.
-- 로그인은 조회 데이터의 학교·학번·이름과 일치하는 활성 학생인지만 확인합니다(별도 로그인 흐름 미사용, 보안 경계 아님). 접속 현황·성장 이력은 그 브라우저 한 곳만 집계합니다.
-- 공개 인터넷에 올릴 때는 각 사용자가 URL을 직접 입력해야 하고 CORS 설정이 필요합니다. 서명 URL을 숨기려면 서버리스 API(예: Azure Functions)가 필요하며, 이 경우 로컬 모드를 끄면 기존 `/api/*` 호출이 그대로 실제 API를 향합니다.
+- 설정·세션·성장 기록은 해당 브라우저의 `localStorage`에만 저장됩니다. **목적지를 모든 브라우저에 고정**하려면 [`public/local-api.js`](./public/local-api.js) 상단 `DEFAULTS`의 `flowUrl`(조회 흐름)·`loginUrl`(로그인 검증 흐름)에 URL을 적으세요. 적으면 로컬 모드가 자동으로 켜집니다. 브라우저에서 직접 호출하므로 이 URL은 사용자에게 노출되며, 공개 저장소에 올리면 누구나 볼 수 있습니다.
+- `loginUrl`을 적으면 로그인은 `POST { school, studentId, studentName }` → `{ verified: true|false }` 흐름으로 확인합니다(기존 서버 방식과 동일). 비워 두면 조회 데이터의 학교·학번·이름 일치 여부로 확인합니다. 두 방식 모두 브라우저 안의 확인이라 보안 경계는 아닙니다. 접속 현황·성장 이력은 그 브라우저 한 곳만 집계합니다.
+- 공개 인터넷에 올릴 때는 흐름 Response의 CORS 설정이 필요합니다. 기본 요청은 사전 요청이 없는 `text/plain`이므로, 로그인 흐름에서는 본문을 `json(triggerBody())`로 읽어야 합니다(`contentType: "json"`은 흐름이 OPTIONS 사전 요청을 처리할 때만). 서명 URL을 숨기려면 서버리스 API(예: Azure Functions)가 필요하며, 이 경우 로컬 모드를 끄면 기존 `/api/*` 호출이 그대로 실제 API를 향합니다.
 
 ## 로그인 (Node 서버 모드)
 

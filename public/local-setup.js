@@ -11,13 +11,15 @@
   function refresh() {
     var config = api.config();
     byId("flow-url").value = config.flowUrl;
+    byId("login-url").value = config.loginUrl;
     byId("content-type").value = config.contentType;
     byId("enabled").checked = config.enabled;
     byId("rows-status").textContent = api.hasImportedRows() ? "가져온 JSON이 저장되어 있습니다." : "가져온 JSON이 없습니다.";
   }
   function save() {
     api.saveConfig({
-      enabled: byId("enabled").checked, flowUrl: byId("flow-url").value, contentType: byId("content-type").value,
+      enabled: byId("enabled").checked, flowUrl: byId("flow-url").value, loginUrl: byId("login-url").value,
+      contentType: byId("content-type").value,
     });
   }
 

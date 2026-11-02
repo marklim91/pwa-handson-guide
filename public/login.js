@@ -53,7 +53,7 @@
         cache: "no-store",
       });
       if (response.status === 404 || response.status === 405) {
-        throw new Error("학생 검증 API를 사용할 수 없습니다. Node.js 서버에서 실행 중인지 확인해 주세요.");
+        throw new Error("학생 검증 API를 사용할 수 없습니다. Node.js 서버로 실행하거나, 로컬 정적 모드라면 local-setup.html에서 설정(또는 local-api.js의 DEFAULTS에 URL 입력)을 확인해 주세요.");
       }
       var result = await response.json();
       if (!response.ok || !result || result.verified !== true) {

@@ -1,9 +1,16 @@
 /* Browser-only replacement for the Node server's /api/* routes (no Node.js required).
- * Active only when enabled in local-setup.html. Data comes from a Power Automate flow
- * called directly by the browser, or from a JSON file imported into this browser. */
+ * 호출 목적지는 아래 DEFAULTS에 직접 적거나 local-setup.html에서 브라우저별로 지정합니다.
+ * (브라우저에서 직접 호출하므로 URL은 사용자에게 노출됩니다.) */
 (function () {
   "use strict";
   if (window.PcoLocalApi) return;
+
+  // ▼ 여기에 목적지를 적으면 모든 브라우저에서 로컬 정적 모드가 자동으로 켜집니다.
+  var DEFAULTS = {
+    flowUrl: "",   // 대시보드/내 학습 조회 흐름 (POST → { value: [...] })
+    loginUrl: "",  // 로그인 검증 흐름 (POST {school, studentId, studentName} → { verified: true|false }). 비워 두면 조회 데이터로 검증
+    contentType: "text", // "text"(text/plain, CORS 사전 요청 없음) 또는 "json"(application/json)
+  };
 
   var script = document.currentScript;
   var base = script && script.src ? new URL(".", script.src) : new URL(".", location.href);
@@ -34,26 +41,49 @@
 
   function config() {
     var value = read(CONFIG_KEY) || {};
+    var text = function (stored, fallback) { return typeof stored === "string" && stored ? stored : fallback; };
     return {
-      enabled: value.enabled === true,
-      flowUrl: typeof value.flowUrl === "string" ? value.flowUrl : "",
-      contentType: value.contentType === "json" ? "json" : "text",
+      // DEFAULTS에 URL을 적어 두면 별도 설정 없이 자동으로 켜집니다.
+      enabled: typeof value.enabled === "boolean" ? value.enabled : Boolean(DEFAULTS.flowUrl || DEFAULTS.loginUrl),
+      flowUrl: text(value.flowUrl, DEFAULTS.flowUrl),
+      loginUrl: text(value.loginUrl, DEFAULTS.loginUrl),
+      contentType: (value.contentType || DEFAULTS.contentType) === "json" ? "json" : "text",
     };
   }
   function isStatic() { return window.PcoDeployment && window.PcoDeployment.mode === "static"; }
 
-  function flowEndpoint(value) {
+  var FLOW_TEXT = {
+    dashboard: {
+      badUrl: ["INVALID_DASHBOARD_URL", "대시보드 조회 흐름 URL 설정을 확인해 주세요."],
+      http: ["DASHBOARD_FLOW_HTTP_ERROR", "Dataverse 조회 흐름 실행에 실패했습니다."],
+      large: ["DASHBOARD_RESPONSE_TOO_LARGE", "조회 데이터가 처리 한도를 초과했습니다."],
+      timeout: ["DASHBOARD_TIMEOUT", "조회 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요."],
+      unreachable: ["DASHBOARD_FLOW_UNREACHABLE", "Power Automate 흐름에 연결할 수 없습니다. 브라우저가 응답을 읽으려면 흐름의 Response에 " +
+        "Access-Control-Allow-Origin 헤더가 필요합니다. 어려우면 local-setup.html에서 JSON 가져오기를 사용해 주세요."],
+    },
+    login: {
+      badUrl: ["INVALID_FLOW_URL", "학생 검증 흐름 URL 설정을 확인해 주세요."],
+      http: ["FLOW_HTTP_ERROR", "학생 정보 확인 서비스에 오류가 발생했습니다. 관리자에게 문의해 주세요."],
+      large: ["INVALID_FLOW_RESPONSE", "데이터가 존재하지 않거나 Active한 사용자가 아닙니다."],
+      timeout: ["FLOW_TIMEOUT", "학생 정보 확인 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요."],
+      unreachable: ["FLOW_UNREACHABLE", "학생 검증 흐름에 연결할 수 없습니다. 흐름의 Response에 Access-Control-Allow-Origin 헤더가 있는지, " +
+        "text/plain 요청 본문을 json(triggerBody())로 읽는지 확인해 주세요."],
+    },
+  };
+
+  function flowEndpoint(value, kind) {
     if (!value) {
       throw new LocalError(503, "DASHBOARD_NOT_CONFIGURED",
-        "데이터 소스가 설정되지 않았습니다. local-setup.html에서 Power Automate URL을 입력하거나 JSON을 가져와 주세요.");
+        "데이터 소스가 설정되지 않았습니다. local-api.js의 DEFAULTS 또는 local-setup.html에서 Power Automate URL을 입력하거나 JSON을 가져와 주세요.");
     }
+    var bad = FLOW_TEXT[kind || "dashboard"].badUrl;
     var url;
     try { url = new URL(value); } catch (error) {
-      throw new LocalError(503, "INVALID_DASHBOARD_URL", "대시보드 조회 흐름 URL 설정을 확인해 주세요.");
+      throw new LocalError(503, bad[0], bad[1]);
     }
     if (url.protocol !== "https:" || url.username || url.password || url.hash ||
         !(url.hostname.endsWith(".api.powerplatform.com") || url.hostname.endsWith(".logic.azure.com"))) {
-      throw new LocalError(503, "INVALID_DASHBOARD_URL", "대시보드 조회 흐름 URL 설정을 확인해 주세요.");
+      throw new LocalError(503, bad[0], bad[1]);
     }
     return url.href;
   }
@@ -106,6 +136,31 @@
     return Array.from(latest.values()).filter(function (s) { return s.active; });
   }
 
+  async function callFlow(rawUrl, payload, kind) {
+    var settings = config();
+    var text = FLOW_TEXT[kind];
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, 15000);
+    try {
+      var response = await originalFetch(flowEndpoint(rawUrl, kind), {
+        method: "POST", cache: "no-store", redirect: "error", signal: controller.signal,
+        headers: { "Content-Type": settings.contentType === "json" ? "application/json" : "text/plain" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new LocalError(502, text.http[0], text.http[1]);
+      var body = await response.text();
+      if (body.length > MAX_RESPONSE_CHARS) throw new LocalError(502, text.large[0], text.large[1]);
+      try { return JSON.parse(body); } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
+        throw kind === "login" ? new LocalError(502, text.large[0], text.large[1]) : invalidResponse();
+      }
+    } catch (error) {
+      if (error instanceof LocalError) throw error;
+      var failure = error && error.name === "AbortError" ? text.timeout : text.unreachable;
+      throw new LocalError(error && error.name === "AbortError" ? 504 : 502, failure[0], failure[1]);
+    } finally { clearTimeout(timeout); }
+  }
+
   async function fetchRows() {
     var settings = config();
     if (!settings.flowUrl) {
@@ -113,34 +168,7 @@
       if (!imported) flowEndpoint("");
       return latestStudents({ value: imported });
     }
-    var controller = new AbortController();
-    var timeout = setTimeout(function () { controller.abort(); }, 15000);
-    try {
-      var response = await originalFetch(flowEndpoint(settings.flowUrl), {
-        method: "POST", cache: "no-store", redirect: "error", signal: controller.signal,
-        headers: { "Content-Type": settings.contentType === "json" ? "application/json" : "text/plain" },
-        body: "{}",
-      });
-      if (!response.ok) {
-        throw new LocalError(502, "DASHBOARD_FLOW_HTTP_ERROR", "Dataverse 조회 흐름 실행에 실패했습니다.");
-      }
-      var text = await response.text();
-      if (text.length > MAX_RESPONSE_CHARS) {
-        throw new LocalError(502, "DASHBOARD_RESPONSE_TOO_LARGE", "조회 데이터가 처리 한도를 초과했습니다.");
-      }
-      try { return latestStudents(JSON.parse(text)); } catch (error) {
-        if (error instanceof SyntaxError) throw invalidResponse();
-        throw error;
-      }
-    } catch (error) {
-      if (error instanceof LocalError) throw error;
-      if (error && error.name === "AbortError") {
-        throw new LocalError(504, "DASHBOARD_TIMEOUT", "조회 시간이 초과되었습니다. 잠시 후 다시 시도해 주세요.");
-      }
-      throw new LocalError(502, "DASHBOARD_FLOW_UNREACHABLE",
-        "Power Automate 흐름에 연결할 수 없습니다. 브라우저가 응답을 읽으려면 흐름의 Response에 " +
-        "Access-Control-Allow-Origin 헤더가 필요합니다. 어려우면 local-setup.html에서 JSON 가져오기를 사용해 주세요.");
-    } finally { clearTimeout(timeout); }
+    return latestStudents(await callFlow(settings.flowUrl, {}, "dashboard"));
   }
 
   /* ---------- local state (sessions, logins, observed history) ---------- */
@@ -289,11 +317,26 @@
           !/^\p{L}[\p{L}\p{M}]*$/u.test(body.studentName)) {
         throw failure(new LocalError(400, "INVALID_STUDENT", "학교, 숫자로 된 학번, 문자로 된 이름을 모두 입력해 주세요."));
       }
-      var data;
-      try { data = await load(true); } catch (error) { throw failure(error); }
-      var match = data.students.find(function (s) {
-        return s.school === body.school && s.studentId === body.studentId && s.name === body.studentName.trim();
-      });
+      var settings = config();
+      var match;
+      if (settings.loginUrl) {
+        var result;
+        try {
+          result = await callFlow(settings.loginUrl, {
+            school: body.school, studentId: body.studentId, studentName: body.studentName,
+          }, "login");
+        } catch (error) { throw failure(error); }
+        if (!result || typeof result.verified !== "boolean") {
+          throw failure(new LocalError(502, "INVALID_FLOW_RESPONSE", "데이터가 존재하지 않거나 Active한 사용자가 아닙니다."));
+        }
+        if (result.verified) match = { school: body.school, studentId: body.studentId, name: body.studentName };
+      } else {
+        var data;
+        try { data = await load(true); } catch (error) { throw failure(error); }
+        match = data.students.find(function (s) {
+          return s.school === body.school && s.studentId === body.studentId && s.name === body.studentName.trim();
+        });
+      }
       if (!match) {
         throw failure(new LocalError(401, "STUDENT_NOT_VERIFIED",
           "입력 정보가 일치하는 활성 학생을 찾을 수 없습니다. 학교, 학번, 이름을 확인해 주세요."));
@@ -440,8 +483,9 @@
     config: config,
     saveConfig: function (next) {
       var value = { enabled: next.enabled === true, flowUrl: String(next.flowUrl || "").trim(),
-        contentType: next.contentType === "json" ? "json" : "text" };
-      if (value.flowUrl) flowEndpoint(value.flowUrl);
+        loginUrl: String(next.loginUrl || "").trim(), contentType: next.contentType === "json" ? "json" : "text" };
+      if (value.flowUrl) flowEndpoint(value.flowUrl, "dashboard");
+      if (value.loginUrl) flowEndpoint(value.loginUrl, "login");
       if (!write(CONFIG_KEY, value)) throw new Error("브라우저 저장소에 설정을 저장할 수 없습니다.");
       cached = null;
     },
