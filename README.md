@@ -11,7 +11,7 @@
 
 ### 1. 온라인 배포 주소 (GitHub Pages)
 - 이 저장소의 기본 Pages 주소는 `https://marklim91.github.io/paco-pythonCoach/`입니다. 실제 배포 URL은 Actions의 `github-pages` 환경 링크를 확인하세요.
-- Pages 배포는 아래 **공개 정적 리포트 모드**를 사용합니다. Node 서버 모드의 로그인·실시간 API와는 다릅니다.
+- Pages 배포는 `public/`을 **그대로** 올리며(빌드·데이터 내보내기 없음), 로그인·대시보드·내 학습은 열람자 브라우저가 [로컬 정적 모드](#node-없이-정적-페이지로-실행-로컬-정적-모드)로 Power Automate 흐름을 직접 호출해 동작합니다. 워크플로: [`pages.yml`](./.github/workflows/pages.yml).
 
 ### 2. 로컬에서 실행하기
 
@@ -44,7 +44,9 @@ npm run preview:new  # 빌드 결과 확인: http://127.0.0.1:4173/new.html
 
 ---
 
-## GitHub Actions → Pages 공개 정적 리포트
+## (이전 방식) GitHub Actions → Pages 공개 정적 리포트
+
+> 현재 `pages.yml`은 이 방식을 **사용하지 않습니다**. 학생 데이터를 배포 시점 JSON으로 내보내는 방식이며, 필요할 때를 위해 [`scripts/build-pages.js`](./scripts/build-pages.js)와 아래 설명을 남겨 두었습니다. 사용하려면 워크플로의 build 단계를 `npm run build:pages`로 되돌려야 합니다.
 
 ### 처음 설정하기
 

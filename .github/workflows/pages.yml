@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '17 * * * *'
 
 permissions:
   contents: read
@@ -35,30 +33,14 @@ jobs:
     permissions:
       contents: read
       pages: read
-    outputs:
-      collected-at: ${{ steps.snapshot.outputs.collected-at }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Require explicit public data approval
-        env:
-          APPROVED: ${{ vars.PAGES_PUBLISH_STUDENT_DATA }}
-        run: |
-          if [ "$APPROVED" != "true" ]; then
-            echo "::error::Set PAGES_PUBLISH_STUDENT_DATA=true only after approving public student names, schools, levels and points."
-            exit 1
-          fi
       - uses: actions/configure-pages@v5
-      - name: Export allowlisted public report
-        env:
-          POWER_AUTOMATE_DASHBOARD_URL: ${{ secrets.POWER_AUTOMATE_DASHBOARD_URL }}
-          PAGES_PUBLISH_STUDENT_DATA: ${{ vars.PAGES_PUBLISH_STUDENT_DATA }}
-        run: npm run build:pages
-      - name: Record snapshot timestamp
-        id: snapshot
-        run: node -e "const fs=require('node:fs');const d=JSON.parse(fs.readFileSync('_site/reports/dashboard.json'));fs.appendFileSync(process.env.GITHUB_OUTPUT,'collected-at='+d.collectedAt+'\n');"
+      - name: Assemble site from public/ (no Node build, no data export)
+        run: |
+          mkdir _site
+          cp -r public/. _site/
+          touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
@@ -79,12 +61,22 @@ jobs:
       - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Check published HTML, mode and snapshot
+      - name: Check published login page and browser-side API
         env:
           PAGES_URL: ${{ steps.deployment.outputs.page_url }}
-          EXPECTED_COLLECTED_AT: ${{ needs.build.outputs.collected-at }}
-        run: node scripts/check-pages.js
+        run: |
+          base="${PAGES_URL%/}/"
+          for attempt in 1 2 3 4 5; do
+            ok=1
+            for file in login.html local-api.js new.html; do
+              code=$(curl -s -o /dev/null -w '%{http_code}' "${base}${file}?t=${RANDOM}") || code=000
+              [ "$code" = "200" ] || ok=0
+            done
+            if [ "$ok" = 1 ] && ! curl -s "${base}login.html?t=${RANDOM}" | grep -q 'site-mode.js'; then
+              echo "Published pages are reachable and not in static snapshot mode."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Published login page, local-api.js or new.html is not reachable as expected."
+          exit 1
