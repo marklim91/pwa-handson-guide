@@ -30,7 +30,7 @@ class Element {
 
 const fixtureStudent = (changes = {}) => ({
   id: 'student-a', alias: '학습자-2F0AB3C0', name: '가상하나', school: '현풍중학교',
-  points: 300, level: 5, observedGrowth: 100, modifiedAt: '2026-10-30T06:00:00Z',
+  points: 300, level: 5, rank: 1, observedGrowth: 100, modifiedAt: '2026-10-30T06:00:00Z',
   history: [
     { at: '2026-10-29T06:00:00Z', points: 200, level: 4 },
     { at: '2026-10-30T06:00:00Z', points: 300, level: 5 },
@@ -44,7 +44,7 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
   const errors = [];
   const requests = [];
   const students = [fixtureStudent(), fixtureStudent({
-    id: 'student-b', alias: '학습자-ABC12345', school: '도원중학교', points: 200,
+    id: 'student-b', alias: '학습자-ABC12345', school: '도원중학교', points: 200, rank: 2,
   })];
   const node = id => {
     if (!nodes.has(id)) nodes.set(id, new Element());
@@ -61,6 +61,7 @@ function loadClient(script = 'dashboard.js', { staticMode = false, reportFailure
       mode: 'static', students, schools: students.map(student => student.school),
       collectedAt: collectedAt || new Date().toISOString(), historyNote: '이번 배포의 단일 관측값입니다.',
     },
+    '/reports/learning-guides.json': { mode: 'static', guides: { 5: getLearningGuide(5) } },
     '/api/dashboard': {
       students, schools: students.map(student => student.school), collectedAt: students[0].modifiedAt,
     },
@@ -194,11 +195,34 @@ test('static report labels old data and never replaces failed data with sample s
   assert.ok(failed.requests.every(url => !url.includes('/api/')));
 });
 
-test('static personal page explicitly disables session-based lookup without API calls', async () => {
+test('static personal page lets a student pick their public record and computes ranks without API calls', async () => {
   const app = loadClient('my-learning.js', { staticMode: true });
   await settled();
-  assert.deepEqual(app.requests, []);
-  assert.equal(app.node('learning-status').textContent, '정적 리포트 모드');
-  assert.equal(app.node('learning-refresh').disabled, true);
-  assert.match(app.node('learning-collected').textContent, /로그인과 내 학습 조회를 지원하지 않습니다/);
+  assert.deepEqual(app.requests, [
+    'https://example.test/paco-pythonCoach/reports/dashboard.json',
+    'https://example.test/paco-pythonCoach/reports/learning-guides.json',
+  ]);
+  assert.equal(app.node('learning-picker').hidden, false);
+  assert.equal(app.node('learning-status').textContent, '학생 선택 필요');
+  assert.equal(app.node('learning-refresh').disabled, false);
+  assert.equal(app.node('static-school').children.length, 3);
+  app.node('static-school').value = '현풍중학교';
+  app.node('static-school').listeners.change();
+  assert.equal(app.node('static-student').children.length, 2);
+  app.node('static-student').value = 'student-a';
+  app.node('static-student').listeners.change();
+  assert.equal(app.node('learner-name').textContent, '가상하나님의 학습 현황');
+  assert.equal(app.node('my-points').textContent, '300점');
+  assert.equal(app.node('my-rank').textContent, '1위');
+  assert.match(app.node('my-rank-note').textContent, /전체 2명 · 학교 1위 \/ 1명/);
+  assert.equal(app.node('learning-status').textContent, '공개 정적 리포트 기준');
+  assert.ok(app.requests.every(url => !url.includes('/api/')));
+});
+
+test('static personal page reports failures instead of showing stale records', async () => {
+  const app = loadClient('my-learning.js', { staticMode: true, reportFailure: true });
+  await settled();
+  assert.equal(app.node('learning-status').textContent, '리포트 조회 실패');
+  assert.equal(app.node('learning-error').hidden, false);
+  assert.equal(app.node('learning-picker').hidden, true);
 });

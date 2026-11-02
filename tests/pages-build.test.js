@@ -81,6 +81,10 @@ test('Pages export publishes only allowlisted student fields and no signed URL, 
     }
   }
   const serialized = JSON.stringify(report);
+  const guides = JSON.parse(fs.readFileSync(path.join(opts.outputDir, 'reports', 'learning-guides.json'), 'utf8'));
+  assert.equal(guides.mode, 'static');
+  assert.deepEqual(Object.keys(guides.guides), ['5']);
+  assert.equal(guides.guides[5].current.level, 5);
   for (const privateField of ['studentId', 'recordId', 'alias', 'sessions', 'logins', 'secret', '"00123"', '"00456"', '"00789"']) {
     assert.equal(serialized.includes(privateField), false);
   }

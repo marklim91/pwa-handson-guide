@@ -39,6 +39,16 @@
         <p class="muted">기존 학교·학번 표시 쿠키만으로는 개인 기록을 선택하지 않습니다.</p>
         <a class="button" href="./login.html?reverify=1">로그인 / 재검증</a>
       </section>
+      <section id="learning-picker" class="panel login-panel" hidden>
+        <p class="eyebrow">MY LEARNING · 정적 리포트</p>
+        <h2>내 이름을 선택해요</h2>
+        <p class="intro">공개된 배포 리포트에서 본인 기록을 찾아 보여줍니다.</p>
+        <p class="muted">본인 확인(로그인)은 하지 않으며 선택값은 이 브라우저에만 저장됩니다.</p>
+        <label for="static-school">학교</label>
+        <select id="static-school"></select>
+        <label for="static-student">학생</label>
+        <select id="static-student"></select>
+      </section>
       <div id="learning-content" hidden></div>
       <noscript><p class="error">내 학습 기록을 조회하려면 JavaScript를 켜 주세요.</p></noscript>
       <footer class="footer">

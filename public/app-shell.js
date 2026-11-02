@@ -59,7 +59,6 @@
     // },
   ];
   var staticMode = window.PcoDeployment && window.PcoDeployment.mode === "static";
-  if (staticMode) pages = pages.filter(function (page) { return page.rel !== "my-learning.html"; });
 
   var currentPath = decodeURIComponent(window.location.pathname);
   var relCurrent =

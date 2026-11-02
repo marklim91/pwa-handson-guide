@@ -2,15 +2,7 @@
   "use strict";
   var base = new URL(".", document.currentScript.src);
   var byId = function (id) { return document.getElementById(id); };
-  if (window.PcoDeployment && window.PcoDeployment.mode === "static") {
-    byId("learning-status").textContent = "정적 리포트 모드";
-    byId("learning-collected").textContent = "GitHub Pages에서는 로그인과 내 학습 조회를 지원하지 않습니다.";
-    byId("learning-refresh-note").textContent = "개인 API와 로그인 세션을 사용하지 않습니다.";
-    byId("learning-error").textContent = "전체 학생 현황에서 마지막 배포 시점의 공개 리포트를 확인해 주세요.";
-    byId("learning-error").hidden = false;
-    byId("learning-refresh").disabled = true;
-    return;
-  }
+  var staticMode = window.PcoDeployment && window.PcoDeployment.mode === "static";
   var loading = false;
   var requestVersion = 0;
   var activeController = null;
@@ -180,6 +172,127 @@
       }
     }
   }
+  var STATIC_KEY = "pco-static-student";
+  var STALE_MS = 2 * 60 * 60 * 1000;
+  var staticReport = null;
+  var staticGuides = null;
+  var staticChoice = null;
+
+  function readChoice() {
+    try { return JSON.parse(window.localStorage.getItem(STATIC_KEY)) || null; } catch (error) { return null; }
+  }
+  function writeChoice(student) {
+    staticChoice = { id: student.id, school: student.school, name: student.name };
+    try { window.localStorage.setItem(STATIC_KEY, JSON.stringify(staticChoice)); } catch (error) { /* 저장은 선택 사항 */ }
+  }
+  async function getStaticJson(route) {
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, 20000);
+    try {
+      var response = await fetch(new URL(route, base), { cache: "no-store", signal: controller.signal });
+      if (!response.ok) throw new Error("정적 리포트 파일을 불러오지 못했습니다. 배포가 성공했는지 확인해 주세요.");
+      return await response.json();
+    } finally { clearTimeout(timeout); }
+  }
+  function fillSelect(select, placeholder, items) {
+    select.replaceChildren(new Option(placeholder, ""));
+    items.forEach(function (item) { select.appendChild(new Option(item.label, item.value)); });
+  }
+  function fillStudents(school) {
+    var rows = staticReport.students.filter(function (s) { return s.school === school; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name, "ko") || b.points - a.points; });
+    var counts = {};
+    rows.forEach(function (s) { counts[s.name] = (counts[s.name] || 0) + 1; });
+    fillSelect(byId("static-student"), "학생 선택", rows.map(function (s) {
+      return { value: s.id, label: counts[s.name] > 1 ? s.name + " · " + number.format(s.points) + "점" : s.name };
+    }));
+  }
+  function staticRecord(student) {
+    var students = staticReport.students;
+    var mates = students.filter(function (s) { return s.school === student.school; });
+    var guide = staticGuides[student.level];
+    if (!guide) throw new TypeError("레벨 가이드가 리포트에 없습니다.");
+    return {
+      student: student, guide: guide, collectedAt: staticReport.collectedAt,
+      ranking: {
+        overall: student.rank, overallStudents: students.length,
+        school: mates.filter(function (s) { return s.points > student.points; }).length + 1,
+        schoolStudents: mates.length,
+      },
+      historyNote: staticReport.historyNote,
+    };
+  }
+  function showStatic(student) {
+    writeChoice(student);
+    render(staticRecord(student));
+    var age = Date.now() - Date.parse(staticReport.collectedAt);
+    text("learning-collected", "배포 시점 수집: " + time(staticReport.collectedAt) +
+      (age > STALE_MS ? " · 2시간 이상 경과한 데이터입니다." : ""));
+    text("learning-status", "공개 정적 리포트 기준");
+    byId("learning-status").dataset.state = age > STALE_MS ? "error" : "connected";
+  }
+  function findChoice() {
+    var choice = staticChoice || readChoice();
+    if (!choice) return null;
+    var students = staticReport.students;
+    var byIdMatch = students.filter(function (s) { return s.id === choice.id; });
+    if (byIdMatch.length === 1) return byIdMatch[0];
+    var same = students.filter(function (s) { return s.school === choice.school && s.name === choice.name; });
+    return same.length === 1 ? same[0] : null;
+  }
+  async function loadStatic() {
+    byId("learning-refresh").disabled = true;
+    byId("learning-error").hidden = true;
+    text("learning-status", "리포트 확인 중");
+    try {
+      var results = await Promise.all([getStaticJson("reports/dashboard.json"), getStaticJson("reports/learning-guides.json")]);
+      if (results[0].mode !== "static" || !Array.isArray(results[0].students) ||
+          !Number.isFinite(Date.parse(results[0].collectedAt)) || !results[1].guides) throw new TypeError("리포트 형식 오류");
+      staticReport = results[0];
+      staticGuides = results[1].guides;
+      var schools = staticReport.schools.slice().sort();
+      fillSelect(byId("static-school"), "학교 선택", schools.map(function (s) { return { value: s, label: s }; }));
+      byId("learning-picker").hidden = false;
+      var chosen = findChoice();
+      if (chosen) {
+        byId("static-school").value = chosen.school;
+        fillStudents(chosen.school);
+        byId("static-student").value = chosen.id;
+        showStatic(chosen);
+      } else {
+        fillStudents("");
+        clearRecord();
+        text("learning-collected", "학교와 이름을 선택하면 배포 시점의 내 기록이 표시됩니다.");
+        text("learning-status", "학생 선택 필요");
+      }
+    } catch (error) {
+      clearRecord();
+      byId("learning-picker").hidden = true;
+      text("learning-status", "리포트 조회 실패");
+      byId("learning-status").dataset.state = "error";
+      text("learning-collected", "현재 기록을 확인할 수 없습니다. 이전 기록을 대신 표시하지 않습니다.");
+      text("learning-error", error.name === "AbortError" ? "조회 시간이 초과되었습니다. 다시 시도해 주세요." :
+        error instanceof TypeError || error instanceof SyntaxError ?
+          "정적 리포트 파일과 네트워크를 확인해 주세요. Actions에서 배포가 성공했는지 확인해 주세요." : error.message);
+      byId("learning-error").hidden = false;
+    } finally { byId("learning-refresh").disabled = false; }
+  }
+  function startStatic() {
+    text("learning-refresh-note", "공개 정적 리포트 · 본인 인증 없음 · 시각은 한국 시간");
+    byId("static-school").addEventListener("change", function () {
+      clearRecord();
+      fillStudents(byId("static-school").value);
+      text("learning-status", "학생 선택 필요");
+    });
+    byId("static-student").addEventListener("change", function () {
+      var student = staticReport.students.filter(function (s) { return s.id === byId("static-student").value; })[0];
+      if (student) showStatic(student); else clearRecord();
+    });
+    byId("learning-refresh").addEventListener("click", loadStatic);
+    loadStatic();
+  }
+  if (staticMode) { startStatic(); return; }
+
   byId("learning-refresh").addEventListener("click", load);
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) resetView();

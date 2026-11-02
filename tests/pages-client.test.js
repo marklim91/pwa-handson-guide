@@ -50,7 +50,7 @@ test('static presence explicitly disables session checks and login controls', ()
   assert.equal(nodes['pco-session-logout'].hidden, true);
 });
 
-test('static shell retains repository-relative navigation without personal links or a presence script', () => {
+test('static shell retains repository-relative navigation without a presence script', () => {
   const nodes = {
     'pco-session-status': {}, 'pco-session-login': { hidden: false }, 'pco-session-logout': { hidden: false },
   };
@@ -74,7 +74,7 @@ test('static shell retains repository-relative navigation without personal links
   });
   assert.equal(inserted.length, 1);
   assert.match(inserted[0].innerHTML, /href="\/paco-pythonCoach\/dashboard.html"/);
-  assert.doesNotMatch(inserted[0].innerHTML, /href="[^"]*my-learning.html"/);
+  assert.match(inserted[0].innerHTML, /href="\/paco-pythonCoach\/my-learning.html"/);
   assert.equal(nodes['pco-session-status'].textContent, '공개 정적 리포트 · 로그인 미지원');
   assert.equal(nodes['pco-session-login'].hidden, true);
 });

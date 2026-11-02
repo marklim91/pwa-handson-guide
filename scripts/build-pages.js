@@ -2,6 +2,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { fetchDashboardStudents } = require('../dashboard-api');
+const { getLearningGuide } = require('../learning-guide');
+
+function learningGuides(students) {
+  const guides = {};
+  for (const level of new Set(students.map(student => student.level))) guides[level] = getLearningGuide(level);
+  return { mode: 'static', guides };
+}
 
 function publicSnapshot(students, collectedAt) {
   if (!Number.isSafeInteger(students.reduce((sum, student) => sum + student.points, 0))) {
@@ -75,7 +82,8 @@ async function buildPages({
     'window.PcoDeployment = Object.freeze({ mode: "static" });\n');
   fs.mkdirSync(path.join(outputDir, 'reports'));
   fs.writeFileSync(path.join(outputDir, 'reports', 'dashboard.json'), JSON.stringify(snapshot));
-  fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
+    fs.writeFileSync(path.join(outputDir, 'reports', 'learning-guides.json'),
+      JSON.stringify(learningGuides(snapshot.students)));  fs.writeFileSync(path.join(outputDir, '.nojekyll'), '');
   return { students: snapshot.students.length, collectedAt: snapshot.collectedAt };
 }
 
